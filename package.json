@@ -1,0 +1,13 @@
+{
+  "name": "max-horse-unbridled",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A lightweight 3D horse endless runner for max.horse",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "start": "node dev-server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

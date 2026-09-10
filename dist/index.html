@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#172d28">
+  <meta name="description" content="Hit the trail. A 3D endless horse runner with juicy jumps, carrot rushes, apples, and a little wild spirit. Play with keys or touch.">
+  <title>Unbridled — max.horse</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23172d28'/%3E%3Ctext x='50' y='72' font-size='70' text-anchor='middle'%3E🐴%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main id="game" aria-label="Unbridled horse runner">
+    <canvas id="world" aria-label="Three dimensional horse runner. Use arrow keys or on-screen controls to play."></canvas>
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="speed-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <header class="topbar">
+      <a class="brand" href="https://max.horse" aria-label="max.horse home"><span class="brand-icon">⋒</span> max.horse<span class="brand-divider"></span><span class="brand-game">UNBRIDLED</span></a>
+      <div class="top-actions">
+        <button id="sound" class="icon-button" aria-label="Turn sound on" aria-pressed="false" title="Sound on/off (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path id="sound-waves" d="m16 9 6 6m0-6-6 6"/></svg></button>
+        <button id="pause" class="icon-button" aria-label="Pause game" title="Pause (P or Esc)" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+        <button id="guide-button" class="icon-button" aria-label="Open field guide" title="Field guide">?</button>
+      </div>
+    </header>
+
+    <div id="hud" hidden>
+      <div class="health-panel"><span class="tiny-label">HORSEPOWER</span><div id="hearts" aria-label="3 hearts">♥ ♥ ♥</div><span id="shield-label" hidden>APPLE SHIELD</span></div>
+      <div class="distance-panel"><div><strong id="distance">0</strong><span>m</span></div><span id="biome-label">THE OPEN FIELDS</span></div>
+      <div class="score-panel"><span class="tiny-label">SCORE</span><strong id="score">0</strong><span class="shoes-counter">⋒ <span id="shoes">0</span> <b id="combo">×1</b></span></div>
+      <div id="powerup" hidden><span id="powerup-icon">🥕</span><div><strong id="powerup-title">COYOTE RUSH</strong><div class="power-track"><i id="powerup-bar"></i></div></div><span id="powerup-time">5s</span></div>
+    </div>
+
+    <section id="start-screen" class="screen start-screen" aria-labelledby="game-title">
+      <div class="start-copy">
+        <div class="eyebrow"><span></span> NO FINISH LINE. JUST HORSE.</div>
+        <h1 id="game-title">UN<br><em>BRIDLED.</em><span class="title-star" aria-hidden="true">✳</span></h1>
+        <p class="intro">Four hooves. Zero brakes.<br>How far can you run?</p>
+        <button id="start" class="primary-button">LET’S RIDE <span>↗</span></button>
+        <div class="start-meta"><span id="start-best">FIRST RIDE? MAKE IT A GOOD ONE.</span><button id="guide-link">How to play <span>↗</span></button></div>
+      </div>
+      <div class="trail-stamp" aria-hidden="true"><span>FREE RANGE</span><b>100%</b><span>HORSEPOWER</span></div>
+      <div class="ready-hint"><span class="hint-dot"></span> YOUR NEXT PERSONAL BEST IS OUT THERE.</div>
+    </section>
+
+    <section id="pause-screen" class="screen center-screen" hidden aria-labelledby="pause-title">
+      <div class="modal-card"><span class="eyebrow">TAKE A BREATHER</span><h2 id="pause-title">Hold your<br><em>horses.</em></h2><p>The trail will wait.</p><button id="resume" class="primary-button">KEEP RUNNING <span>→</span></button><button id="restart-pause" class="text-button">Start a fresh run</button></div>
+    </section>
+    <section id="over-screen" class="screen center-screen" hidden aria-labelledby="over-title">
+      <div class="modal-card results"><span id="result-label" class="eyebrow">A GOOD DAY TO GALLOP</span><h2 id="over-title">One more<br><em>ride?</em></h2><p id="result-reason"></p><div class="result-distance"><strong id="result-distance">0</strong><span>meters</span></div><div class="result-stats"><div><span>SCORE</span><b id="result-score">0</b></div><div><span>HORSESHOES</span><b id="result-shoes">0</b></div><div><span>BEST RUN</span><b id="result-best">0 m</b></div></div><button id="again" class="primary-button">RIDE AGAIN <span>↗</span></button><span class="restart-hint">or press Enter</span></div>
+    </section>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="combo-pop" aria-hidden="true"></div>
+    <footer id="desktop-help"><div><kbd>←</kbd><kbd>→</kbd><span>CHANGE LANES</span></div><div><kbd>SPACE</kbd><span>JUMP</span></div><div><kbd>↓</kbd><span>DUCK / FAST FALL</span></div><span class="footer-note">STAY WILD. RUN FREE.</span></footer>
+    <div id="touch-controls" hidden aria-label="Game controls"><div class="steer-controls"><button data-action="left" aria-label="Move left">←</button><button data-action="right" aria-label="Move right">→</button></div><div class="action-controls"><button data-action="duck" aria-label="Duck or fast fall">↓<span>DUCK</span></button><button data-action="jump" class="jump-control" aria-label="Jump">↑<span>JUMP</span></button></div></div>
+
+    <dialog id="guide" aria-labelledby="guide-title"><div class="guide-top"><span class="eyebrow">KNOW YOUR TRAIL</span><button id="close-guide" class="icon-button" aria-label="Close field guide">×</button></div><h2 id="guide-title">Field guide<span>.</span></h2><p class="guide-intro">Switch lanes. Jump fences and gaps. Duck under branches. Keep your three hearts beating.</p><div class="guide-controls"><div><b>ON A KEYBOARD</b><span>← → or A D to steer<br>Space / ↑ / W to jump<br>↓ / S to duck · P to pause</span></div><div><b>ON YOUR PHONE</b><span>Swipe to steer, jump, or duck.<br>Or use the big buttons below.<br>Tap pause for a breather.</span></div></div><div class="guide-items"><div><span>🥕</span><p><b>Carrot → Coyote Rush</b>5 seconds of speed and protection. Charge through obstacles and gallop over gaps.</p></div><div><span>🍎</span><p><b>Apple → a little love</b>Recover one heart. Full health? Get a shield that absorbs your next hit.</p></div><div><span>⋒</span><p><b>Horseshoes → big scores</b>Collect a chain to grow your multiplier. Jump for the high ones.</p></div><div><span>🐝</span><p><b>Some things aren’t snacks</b>Dodge hay bales and bees. Mud slows you down. Fences and gaps need a jump; low branches need a duck.</p></div></div><p class="guide-tip">A little late on a jump? You get a moment of grace at a ledge. You can also press jump just before landing.</p><button id="guide-done" class="primary-button">GOT IT <span>→</span></button></dialog>
+    <div id="error" class="screen center-screen" hidden><div class="modal-card"><h2>A small<br><em>hitch.</em></h2><p id="error-message">This browser couldn’t start the 3D view. Try an updated browser with graphics acceleration enabled.</p><button class="primary-button" onclick="location.reload()">TRY AGAIN <span>↗</span></button></div></div>
+    <noscript><div class="no-script">Enable JavaScript to hit the trail.</div></noscript>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
