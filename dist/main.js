@@ -21,7 +21,7 @@ function tone(freq,duration=.1,type='sine',volume=.055,slide=0,delay=0){
   osc.connect(gain);gain.connect(audio.destination);osc.start(at);osc.stop(at+duration+.01);
 }
 function vibrate(ms){if(!reduced&&coarse&&navigator.vibrate)navigator.vibrate(ms);}
-function toast(message,color=''){ $('toast').textContent=message;$('toast').style.color=color||'var(--yellow)';$('toast').classList.add('show');toastTime=1.45; }
+function toast(message,tone=''){ const el=$('toast');el.textContent=message;el.dataset.tone=tone;el.classList.add('show');toastTime=1.45; }
 function scorePop(message){$('combo-pop').textContent=message;$('combo-pop').classList.add('show');popTime=.65;}
 function start(){
   if(!renderer)return;
@@ -78,9 +78,7 @@ function updateHud(){
   const hearts=Array.from({length:3},(_,i)=>i<game.health?'♥':'<span class="lost">♥</span>').join(' ');
   if($('hearts').innerHTML!==hearts)$('hearts').innerHTML=hearts;
   $('hearts').setAttribute('aria-label',`${game.health} hearts`);$('shield-label').hidden=!game.shield;
-  $('biome-label').textContent=['THE OPEN FIELDS','GOLDEN PASTURES','THE WILD COUNTRY'][Math.floor(game.distance/700)%3];
-  const active=game.boost>0||game.slow>0;$('powerup').hidden=!active;
-  if(active){const boost=game.boost>0,time=boost?game.boost:game.slow;$('powerup-icon').textContent=boost?'🥕':'◒';$('powerup-title').textContent=boost?'COYOTE RUSH · PROTECTED':'MUDDY HOOVES';$('powerup-bar').style.transform=`scaleX(${Math.min(1,time/(boost?5:1.8))})`;$('powerup-time').textContent=`${Math.ceil(time)}s`;}
+  $('biome-label').textContent=['TERRACOTTA DAWN','MIDDAY HEAT','DESERT NIGHT'][Math.floor(game.distance/700)%3];
   $('speed-lines').style.opacity=game.boost>0&&game.phase==='running'?'.7':'0';
 }
 function events(){
@@ -92,15 +90,15 @@ function events(){
       case 'lane':tone(230,.04,'sine',.014,170);break;
       case 'land':renderer.squash=1;renderer.burst(game.x,.12,.5,[.79,.69,.45],7,2.6);tone(95,.075,'triangle',.05,42);vibrate(8);break;
       case 'collect':renderer.burst(x,1.35,-e.d,[1,.79,.25],7,3);tone(540+game.combo*27,.11,'sine',.045,850+game.combo*25);if(game.combo%5===0){scorePop(`×${game.multiplier} MULTIPLIER!`);vibrate(10);}break;
-      case 'carrot':renderer.burst(x,1.3,0,[1,.45,.12],24,6);toast('COYOTE RUSH!');[330,440,550,880].forEach((f,i)=>tone(f,.16,'triangle',.065,0,i*.065));vibrate([18,25,18]);break;
-      case 'apple':renderer.burst(x,1.3,0,[.7,.94,.43],20,4);toast(game.shield?'APPLE SHIELD!':'+1 HEART!');tone(660,.13,'sine',.06);tone(990,.18,'sine',.06,0,.1);vibrate(12);break;
+      case 'carrot':renderer.burst(x,1.3,0,[1,.45,.12],24,6);toast('COYOTE RUSH!','rush');[330,440,550,880].forEach((f,i)=>tone(f,.16,'triangle',.065,0,i*.065));vibrate([18,25,18]);break;
+      case 'apple':renderer.burst(x,1.3,0,[.86,.28,.16],20,4);toast(game.shield?'APPLE SHIELD!':'+1 HEART!','ok');tone(660,.13,'sine',.06);tone(990,.18,'sine',.06,0,.1);vibrate(12);break;
       case 'near':scorePop('CLOSE CALL +20');tone(470,.07,'sine',.02,640);break;
       case 'clear':scorePop(e.type==='branch'?'SMOOTH DUCK +25':'CLEAN JUMP +25');tone(720,.08,'sine',.025);break;
       case 'smash':renderer.burst(x,1,0,[1,.68,.20],18,6);renderer.shake=.07;scorePop('UNSTOPPABLE!');tone(100,.13,'sawtooth',.025,40);break;
-      case 'shieldBreak':renderer.burst(x,1.3,0,[.8,1,.55],24,6);toast('SHIELD SAVED YOU!');tone(760,.25,'sine',.05,200);vibrate(20);break;
-      case 'hit':renderer.shake=.18;flash=.35;renderer.burst(x,.9,0,[.9,.4,.2],18,5);toast(game.health>0?'SHAKE IT OFF!':'WHOA!', '#ff9e73');tone(135,.3,'sawtooth',.04,40);vibrate([35,25,45]);break;
-      case 'mud':renderer.burst(x,.3,0,[.35,.27,.15],18,4);toast('MUDDY HOOVES!', '#e2c7a1');tone(160,.2,'triangle',.04,45);break;
-      case 'rescue':if(game.health>0)toast('BACK ON YOUR HOOVES!');break;
+      case 'shieldBreak':renderer.burst(x,1.3,0,[.96,.84,.42],24,6);toast('SHIELD SAVED YOU!','ok');tone(760,.25,'sine',.05,200);vibrate(20);break;
+      case 'hit':renderer.shake=.18;flash=.35;renderer.burst(x,.9,0,[.9,.4,.2],18,5);toast(game.health>0?'SHAKE IT OFF!':'WHOA!','hit');tone(135,.3,'sawtooth',.04,40);vibrate([35,25,45]);break;
+      case 'mud':renderer.burst(x,.3,0,[.35,.27,.15],18,4);toast('MUDDY HOOVES!','mud');tone(160,.2,'triangle',.04,45);break;
+      case 'rescue':if(game.health>0)toast('BACK ON YOUR HOOVES!','ok');break;
       case 'over':deathDelay=.48;$('touch-controls').hidden=true;break;
     }
   }

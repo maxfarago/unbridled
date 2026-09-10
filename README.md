@@ -30,7 +30,7 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 - P or Escape: pause; M: toggle sound.
 - Touch: swipe in four directions, or use the on-screen controls.
 
-Carrots grant five seconds of protected Coyote Rush. Apples restore a heart, or provide one shield at full health. Collect horseshoes in quick succession to grow the score multiplier. Jump fences and ditches, duck branches, and dodge hay bales and bees. Mud briefly slows the horse. There is 130 ms of coyote time and 150 ms of jump input buffering. Three hearts, forgiving collision bounds, safe lanes, and short restarts keep runs approachable.
+Carrots grant five seconds of protected Coyote Rush. Apples restore a heart, or provide one shield at full health. Collect horseshoes in quick succession to grow the score multiplier. Jump fallen cactus and ditches, duck stone arches, and dodge boulders and bees. Mud briefly slows the horse. There is 130 ms of coyote time and 150 ms of jump input buffering. Three hearts, forgiving collision bounds, safe lanes, and short restarts keep runs approachable.
 
 Best distance, best score, and sound preference are saved on this device. Sound starts muted and is generated locally after user interaction. The game pauses when the tab loses focus. Reduced-motion preferences disable shake, flashes, vibration, and speed streaks, and reduce particles.
 
