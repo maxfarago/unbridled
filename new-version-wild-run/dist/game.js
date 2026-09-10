@@ -4,15 +4,10 @@ import {BIOMES,landscapeAt} from './biomes.mjs';
 const $=id=>document.getElementById(id);
 let state=freshState(),view,items=[],nextRow=40,last=0,flash=0,shake=0,toastTime=0,uiTime=0,muted=true,audioContext,best=0,oldBest=0,previousMode='menu';
 let currentLandscape=-1,lastSegment=0;
-try{
-  best=Number(localStorage.getItem('unbridled-best')||0);if(!Number.isFinite(best))best=0;
-  muted=localStorage.getItem('unbridled-sound')!=='1';
-}catch{}
+try{best=Number(localStorage.getItem('max-horse-best')||0);if(!Number.isFinite(best))best=0;}catch{}
 $('intro-best').textContent=$('best').textContent=`${Math.floor(best).toLocaleString()} m`;
-$('sound').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');
-$('sound-wave').setAttribute('d',muted?'m16 9 5 6m0-6-5 6':'M15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14');
 function mode(value){state.mode=value;$('game').dataset.mode=value;}
-function toast(text,tone=''){$('toast').textContent=text;$('toast').dataset.tone=tone;$('toast').classList.add('show');toastTime=1.6;}
+function toast(text){$('toast').textContent=text;$('toast').classList.add('show');toastTime=2.1;}
 function sound(kind){
   if(muted)return;
   try{audioContext??=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const now=audioContext.currentTime;
@@ -21,13 +16,14 @@ function sound(kind){
 }
 function start(){
   for(const item of items)view.release(item);items=[];state=freshState();nextRow=40;flash=0;shake=0;oldBest=best;lastSegment=0;updateLandscape();
-  for(const d of document.querySelectorAll('dialog[open]'))d.close();mode('running');$('start').blur();toast('HIT THE TRAIL!');sound('gold');
+  for(const d of document.querySelectorAll('dialog[open]'))d.close();mode('running');$('start').blur();toast('Find your stride. Follow the carrots.');sound('gold');
+  // A readable opening gives a new rider time to learn before the trail gets busy.
   addItem({lane:0,type:'carrot',z:-25});addItem({lane:1,type:'carrot',z:-48});addItem({lane:-1,type:'fence',z:-48});addItem({lane:0,type:'fence',z:-75});addItem({lane:-1,type:'carrot',z:-75});nextRow=22;
 }
 function addItem(data){const item={...data,hit:false};view.obtain(item);items.push(item);}
 function finish(){
-  state.sprinting=false;best=Math.max(best,Math.floor(state.distance));try{localStorage.setItem('unbridled-best',String(best));}catch{}
-  $('final-distance').textContent=Math.floor(state.distance).toLocaleString();$('final-score').textContent=totalScore().toLocaleString();$('final-best').textContent=`${best.toLocaleString()} m`;$('finish-label').textContent=state.distance>oldBest?'A NEW PERSONAL BEST':'A GOOD DAY TO GALLOP';mode('finished');$('finish').showModal();
+  state.sprinting=false;best=Math.max(best,Math.floor(state.distance));try{localStorage.setItem('max-horse-best',String(best));}catch{}
+  $('final-distance').textContent=Math.floor(state.distance).toLocaleString();$('final-score').textContent=totalScore().toLocaleString();$('final-best').textContent=`${best.toLocaleString()} m`;$('finish-label').textContent=state.distance>oldBest?'A NEW PERSONAL BEST':'UNTIL THE NEXT HORIZON';mode('finished');$('finish').showModal();
 }
 function totalScore(){return Math.floor(state.distance)+state.points;}
 function pause(){if(state.mode!=='running')return;state.sprinting=false;mode('paused');$('pause-dialog').showModal();}
@@ -39,10 +35,9 @@ function doSteer(d){if(state.mode==='running')steer(state,d);}
 function doDuck(){if(state.mode==='running')duck(state);}
 $('start').addEventListener('click',start);$('again').addEventListener('click',start);$('restart-pause').addEventListener('click',start);$('pause').addEventListener('click',pause);$('resume').addEventListener('click',resume);$('help').addEventListener('click',openGuide);$('guide').querySelector('.close').addEventListener('click',closeGuide);$('guide').querySelector('.close-guide').addEventListener('click',closeGuide);
 $('guide').addEventListener('cancel',e=>{e.preventDefault();closeGuide();});$('pause-dialog').addEventListener('cancel',e=>{e.preventDefault();resume();});$('finish').addEventListener('cancel',e=>e.preventDefault());
-$('sound').addEventListener('click',()=>{muted=!muted;try{localStorage.setItem('unbridled-sound',muted?'0':'1');}catch{}$('sound').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');$('sound-wave').setAttribute('d',muted?'m16 9 5 6m0-6-5 6':'M15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14');sound('carrot');});
+$('sound').addEventListener('click',()=>{muted=!muted;$('sound').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');$('sound-wave').setAttribute('d',muted?'m16 9 5 6m0-6-5 6':'M15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14');sound('carrot');});
 document.addEventListener('keydown',e=>{
   const key=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup','arrowdown',' ','shift'].includes(key)&&state.mode==='running')e.preventDefault();
-  if(key==='m'){$('sound').click();return;}
   if($('guide').open||$('finish').open)return;
   if(key==='p'||key==='escape'){e.preventDefault();if(state.mode==='running')pause();else if(state.mode==='paused')resume();return;}
   if(state.mode!=='running')return;
@@ -58,9 +53,8 @@ let gesture;
 $('world').addEventListener('pointerdown',e=>{gesture={x:e.clientX,y:e.clientY};$('world').setPointerCapture(e.pointerId);});
 $('world').addEventListener('pointerup',e=>{if(!gesture)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;gesture=null;if(Math.max(Math.abs(dx),Math.abs(dy))<22){doJump();return;}if(Math.abs(dx)>Math.abs(dy))doSteer(Math.sign(dx));else if(dy<0)doJump();else doDuck();});
 $('world').addEventListener('pointercancel',()=>gesture=null);
-$('world').addEventListener('webglcontextlost',e=>{e.preventDefault();pause();$('error-message').textContent='The 3D view was interrupted. Reload to get back on the trail. Your best run is saved.';$('error').hidden=false;});
-const messages={carrot:'CARROT KICK!',apple:'APPLE!',gold:'GOLDEN GALLOP!',mud:'MUDDY HOOVES!',smash:'UNSTOPPABLE!',hit:'SHAKE IT OFF!',protected:'SAFE & SOUND!'};
-const toastTone={apple:'ok',mud:'mud',hit:'hit',protected:'ok'};
+$('world').addEventListener('webglcontextlost',e=>{e.preventDefault();pause();$('error-message').textContent='The graphics connection was interrupted. Refresh to get back on the trail.';$('error').hidden=false;});
+const messages={carrot:'CARROT KICK · faster for 4 seconds',apple:'APPLE · heart restored + protection',gold:'GOLDEN GALLOP · you’re unstoppable',mud:'MUDDY HOOVES · jump the next patch',smash:'FENCE BREAKER · +50',hit:'SHAKE IT OFF · keep running',protected:'SAFE & SOUND'};
 function updateUI(){
   $('distance').textContent=Math.floor(state.distance).toLocaleString();$('score').textContent=totalScore().toLocaleString();$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(3-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} hearts`);$('combo').textContent=`×${Math.min(5,1+Math.floor(state.combo/5))}`;
   $('energy').style.transform=`scaleX(${state.energy/100})`;$('energy-label').textContent=state.energy<5?'CATCH YOUR BREATH':matchMedia('(pointer:coarse)').matches?'HOLD ϟ':'HOLD SHIFT';
@@ -73,7 +67,7 @@ function updateLandscape(){
   const {index,next,blend,segment}=landscapeAt(state.distance);
   if(currentLandscape!==index){$('landscape-base').style.backgroundImage=`url('${BIOMES[index].image}')`;$('landscape-next').style.backgroundImage=`url('${BIOMES[next].image}')`;$('biome-name').textContent=BIOMES[index].name;currentLandscape=index;}
   $('landscape-next').style.opacity=blend;view.setBiome(index,next,blend);
-  if(segment!==lastSegment&&state.mode==='running'){lastSegment=segment;toast(`ENTERING ${BIOMES[index].name}`,'ok');}
+  if(segment!==lastSegment&&state.mode==='running'){lastSegment=segment;toast(`ENTERING ${BIOMES[index].name}`);}
 }
 let hoofTime=0;
 function loop(now){
@@ -81,7 +75,7 @@ function loop(now){
   if(state.mode==='running'){
     const wasGrounded=state.y===0;tick(state,dt);const travel=state.speed*dt;
     nextRow-=travel;if(nextRow<=0){for(const item of makeRow(state.distance))addItem({...item,z:-120});nextRow=22+Math.random()*8;}
-    for(const item of items){const prev=item.z;item.z+=travel;if(!item.hit&&item.z>=.9&&prev<2.1){const result=interact(state,item);if(result){toast(messages[result],toastTone[result]||'');sound(result);if(result==='hit'){flash=1;shake=1;if(navigator.vibrate)navigator.vibrate(60);}if(['carrot','apple','gold','smash'].includes(result)){view.burst(state.x,1.3,1.4,result==='gold'?42:22);view.release(item);}if(state.mode==='finished'){finish();break;}}}if(!item.hit&&item.z>2.1&&item.type==='fence'&&Math.abs(item.lane*2.35-state.x)<.75&&state.y>.8){item.hit=true;state.points+=15;toast('CLEAN JUMP!','ok');}}
+    for(const item of items){const prev=item.z;item.z+=travel;if(!item.hit&&item.z>=.9&&prev<2.1){const result=interact(state,item);if(result){toast(messages[result]);sound(result);if(result==='hit'){flash=1;shake=1;if(navigator.vibrate)navigator.vibrate(60);}if(['carrot','apple','gold','smash'].includes(result)){view.burst(state.x,1.3,1.4,result==='gold'?42:22);view.release(item);}if(state.mode==='finished'){finish();break;}}}if(!item.hit&&item.z>2.1&&item.type==='fence'&&Math.abs(item.lane*2.35-state.x)<.75&&state.y>.8){item.hit=true;state.points+=15;toast('CLEAN JUMP · +15');}}
     items=items.filter(item=>{if(item.z>11){view.release(item);return false;}return true;});
     if(!wasGrounded&&state.y===0)view.burst(state.x,.1,1.8,10);
     hoofTime-=dt;if(hoofTime<=0&&state.y===0){sound('hoof');hoofTime=5/state.speed;}
@@ -93,6 +87,6 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 async function init(){
-  try{view=createScene($('world'));await Promise.all(BIOMES.map(async biome=>{const image=new Image();image.src=new URL(biome.image,import.meta.url).href;await image.decode();}));updateLandscape();mode('menu');$('start').disabled=false;$('start').innerHTML='LET’S RIDE <span>↗</span>';requestAnimationFrame(loop);}catch(error){console.error(error);$('error').hidden=false;$('error-message').textContent='The artwork or 3D graphics couldn’t load. Try a browser with WebGL enabled.';}
+  try{view=createScene($('world'));await Promise.all(BIOMES.map(async biome=>{const image=new Image();image.src=new URL(biome.image,import.meta.url).href;await image.decode();}));updateLandscape();mode('menu');$('start').disabled=false;$('start').innerHTML='Ride into the wild <span>↗</span>';requestAnimationFrame(loop);}catch(error){console.error(error);$('error').hidden=false;$('error-message').textContent='The artwork or 3D graphics couldn’t load. Check your connection and try a browser with WebGL enabled.';}
 }
 init();
