@@ -2,6 +2,10 @@
 
 A self-contained, mobile-friendly 3D horse endless runner. Open `dist/` with any static web server. No package install or build is needed. The 3D scene uses a small WebGL renderer and shared geometry, with no engine, model, texture, or audio downloads. Google Fonts is optional; local fallback fonts remain usable offline.
 
+Play: [unbridled.max.horse](https://unbridled.max.horse)
+
+GitHub: https://github.com/maxfarago/unbridled. Feature work goes on a branch. A PR is required to merge to `master`. Cloudflare Pages preview-deploys every branch; merging to `master` deploys production. The Pages project is `unbridled`.
+
 ## Open in Cursor and run
 
 Open this project folder in Cursor. With Node.js 20 or newer installed, run:
@@ -16,7 +20,7 @@ Then visit `http://127.0.0.1:4173/`. There are no dependencies to install. The s
 npm test
 ```
 
-Runs the 16 gameplay regression checks using Node's built-in test runner. This is a source handoff: version control and deployment are left to the owner.
+Runs the 16 gameplay regression checks using Node's built-in test runner.
 
 ## Controls
 
@@ -38,12 +42,13 @@ Best distance, best score, and sound preference are saved on this device. Sound 
 - `dist/style.css`, `dist/index.html`: responsive game interface.
 - `tests/game.test.mjs`: gameplay regression checks.
 - `dev-server.mjs`: a dependency-free local development server.
+- `wrangler.toml`: Cloudflare Pages project name and `dist/` output dir.
 
 The files in `dist/` are the authored source for this buildless project, not generated output. Edit them directly and refresh the browser. No bundled engine, framework, hosting SDK, API keys, or account connection is required.
 
 ## Putting it on max.horse
 
-Upload the contents of `dist/` to a folder on your web host, such as `/run/`. The game uses relative asset paths, so it works at either a subdirectory or the root of a domain. It can also be embedded in an iframe; give it the available width and at least 600 px of height (or use full viewport height on phones). No API keys, accounts, or backend are required.
+Production is Cloudflare Pages, same as Grand Theft Horse. Feature branch → GitHub PR → merge to `master` deploys `dist/` to [unbridled.max.horse](https://unbridled.max.horse). Branch pushes get Pages preview URLs. The game uses relative asset paths, so it also works at a subdirectory or in an iframe; give an iframe the available width and at least 600 px of height (or use full viewport height on phones). No API keys, accounts, or backend are required.
 
 ## Handoff notes
 
@@ -51,4 +56,3 @@ Upload the contents of `dist/` to a folder on your web host, such as `/run/`. Th
 - Local asset references, UI element bindings, JavaScript syntax, and finite renderer geometry were checked. The representative 3D scene uses one draw call and about 19,000 vertices.
 - Browser playtesting and physical phone/GPU benchmarks have not been performed. The game caps resolution, limits particles, and adapts resolution downward when frames are slow; actual frame rate still needs checking on target devices.
 - Best distance, best score, and sound preference are stored locally. There is no online leaderboard or server persistence.
-- No Git repository was initialized, no commits were created, and nothing was published or connected to max.horse.
