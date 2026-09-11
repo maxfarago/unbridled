@@ -106,7 +106,7 @@ export function createScene(canvas){
     const boost=(s.gold>0||s.carrot>0||s.sprinting&&s.energy>1);ring.visible=s.gold>0||s.invincible>0;ring.position.x=s.x;ring.position.z=1.4;ring.rotation.z+=dt;
     const desiredFov=(camera.aspect<.8?56:46)+(boost&&!reduceMotion?5:0);camera.fov+=(desiredFov-camera.fov)*dt*3;camera.updateProjectionMatrix();
     const bob=reduceMotion?0:Math.sin(gallop*2)*.015;
-    camera.position.set(s.x*.12+(reduceMotion?0:(Math.random()-.5)*shake*.22),4.5+bob,12.7);camera.lookAt(s.x*.12,.8,-30);
+    camera.position.set(s.x*.12+(reduceMotion?0:(Math.random()-.5)*shake*.22),4.5+bob,12.7);camera.lookAt(s.x*.12,1.15,-30);
     renderer.render(scene,camera);
     if(dt>.026&&moving)slowFrames++;else slowFrames=Math.max(0,slowFrames-1);
     if(slowFrames>110&&quality>1){quality=1;renderer.setPixelRatio(Math.min(devicePixelRatio,1));resize();slowFrames=0;}
