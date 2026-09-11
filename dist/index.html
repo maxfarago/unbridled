@@ -26,24 +26,24 @@
     </nav>
   </header>
   <section id="intro" class="intro">
+    <p class="best-intro">PERSONAL BEST <b id="intro-best">0</b></p>
     <h1>UNBRIDLED.</h1>
-    <button id="start" class="primary" disabled>Preparing the trail… <span>↗</span></button>
-    <p class="best-intro">PERSONAL BEST <b id="intro-best">0 m</b></p>
+    <button id="start" class="primary" disabled>
+      <span class="start-loading">Preparing the trail…</span>
+      <span class="start-label">LET’S RIDE <kbd class="desktop">↑</kbd></span>
+    </button>
   </section>
   <section id="hud" class="play-only" aria-label="Run statistics">
     <div class="health-panel"><span class="tiny-label">HORSEPOWER</span><div id="hearts" aria-label="3 hearts">♥ ♥ ♥</div></div>
-    <div class="distance-block">
-      <div><b id="distance">0</b><span>m</span></div>
-      <div class="pace"><b><span id="speed">0</span> <small>km/h</small></b><span id="gait">CANTER</span></div>
-    </div>
-    <div class="status-block"><span class="tiny-label">SCORE</span><strong id="score">0</strong><span class="score-label"><b id="combo">×1</b></span><small>BEST <span id="best">0 m</span></small></div>
+    <div class="score-block"><b id="score">0</b></div>
+    <div class="status-block"><b><span id="speed">0</span> <small>km/h</small></b><span id="gait">CANTER</span></div>
   </section>
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="effect" class="play-only"><span id="effect-label"></span><div><i id="effect-time"></i></div></div>
   <div class="stamina play-only"><div class="stamina-label"><span>SPRINT</span><span id="energy-label">HOLD SHIFT</span></div><div class="meter"><i id="energy"></i></div></div>
   <footer id="intro-footer">
     <div class="control-hint desktop"><span><kbd>←</kbd><kbd>→</kbd> STEER</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>↓</kbd> DUCK</span><span><kbd>SHIFT</kbd> SPRINT</span></div>
-    <div class="control-hint mobile">SWIPE TO STEER & JUMP · HOLD ϟ TO SPRINT</div>
+    <div class="control-hint mobile">SWIPE TO STEER & JUMP</div>
   </footer>
   <div id="touch-controls" class="play-only" aria-label="Touch controls"><div><button id="left" aria-label="Move left">←</button><button id="right" aria-label="Move right">→</button></div><div><button id="duck" aria-label="Duck under bees">↓</button><button id="jump" aria-label="Jump">↑</button><button id="sprint" aria-label="Hold to sprint">ϟ</button></div></div>
   <dialog id="guide">
@@ -71,8 +71,8 @@
   <dialog id="finish">
     <p class="eyebrow" id="finish-label">A GOOD DAY TO GALLOP</p>
     <h2>One more ride?</h2>
-    <div class="result"><b id="final-distance">0</b><span>metres</span></div>
-    <div class="final-stats"><div><b id="final-score">0</b><span>POINTS</span></div><div><b id="final-best">0 m</b><span>PERSONAL BEST</span></div></div>
+    <div class="result"><b id="final-score">0</b></div>
+    <p class="best-finish">PERSONAL BEST <b id="final-best">0</b></p>
     <button id="again" class="primary">RIDE AGAIN <span>↗</span></button>
     <p class="finish-tip">A little tip: you can change lanes in midair.</p>
   </dialog>
