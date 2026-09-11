@@ -1,10 +1,10 @@
 # Unbridled — max.horse
 
-A self-contained, mobile-friendly 3D horse endless runner. Open `dist/` with any static web server. No package install or build is needed. The 3D scene uses vendored Three.js and three original desert paintings. Google Fonts (Barlow Condensed for headers, Expletus Sans 600 for body) is optional; local fallback fonts remain usable offline.
+A self-contained, mobile-friendly 3D horse endless runner. Open `dist/` with any static web server. No package install or build is needed. The 3D scene uses vendored Three.js 0.180 and three original desert paintings. Google Fonts (Barlow Condensed for headers and display, Expletus Sans 600 for body) is optional; local fallback fonts remain usable offline.
 
 Play: [unbridled.max.horse](https://unbridled.max.horse)
 
-GitHub: https://github.com/maxfarago/unbridled. Feature work goes on a branch. A PR is required to merge to `master`. Cloudflare Pages preview-deploys every branch; merging to `master` deploys production. The Pages project is `unbridled`.
+GitHub: https://github.com/maxfarago/unbridled. Feature work goes on a branch. A PR is required to merge to `master`. Cloudflare Pages preview-deploys every branch; merging to `master` deploys production from `dist/`. The Pages project is `unbridled`.
 
 ## Open in Cursor and run
 
@@ -14,7 +14,7 @@ Open this project folder in Cursor. With Node.js 20 or newer installed, run:
 npm run dev
 ```
 
-Then visit `http://127.0.0.1:4173/`. There are no dependencies to install. The server binds to your computer only. Set `PORT` if that port is already in use. The game must be served over HTTP; double-clicking `index.html` will not load its JavaScript modules.
+Then visit `http://127.0.0.1:4173/`. There are no dependencies to install. The server binds to this computer only. Set `PORT` if that port is already in use. The game must be served over HTTP; double-clicking `index.html` will not load its JavaScript modules.
 
 ```sh
 npm test
@@ -24,14 +24,17 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 
 ## Controls
 
-- Left/right arrows or A/D: change lanes.
+- Title: click `LET’S RIDE`, or on desktop press up arrow.
+- Left/right arrows or A/D: change lanes. Steering works in midair.
 - Space, up arrow, or W: jump.
 - Down arrow or S: duck / fast fall.
 - Hold Shift to sprint; release to recharge.
 - P or Escape: pause; M: toggle sound.
-- Touch: swipe in four directions, or use the on-screen controls. Hold ϟ to sprint.
+- Touch: swipe in four directions, or use the on-screen controls. Hold ϟ to sprint. The title hint is swipe only.
 
 Carrots grant four seconds of speed and sprint energy. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincible galloping. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier and shout when the multiplier ticks up. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
+
+HUD during a run is hearts, one center score, and speed + gait. Every 600 metres the landscape dissolves into the next painting: Violet Monoliths, Vermilion Valley, then Midnight Mesas, repeating. Pickup, hazard, and biome events shout in the center of the screen.
 
 Best score (`unbridled-best-score`) and sound preference (`unbridled-sound`) are saved on this device. Distance is used internally for biomes and scoring, not as a rank. Sound starts muted and is generated locally after user interaction. The game pauses when the tab loses focus. Reduced-motion preferences disable shake, flashes, vibration, and speed streaks, and reduce particles.
 
@@ -39,12 +42,12 @@ Best score (`unbridled-best-score`) and sound preference (`unbridled-sound`) are
 
 - `dist/engine.mjs`: deterministic simulation, jumps, collisions, scoring, obstacle rows.
 - `dist/scene.js`: Three.js horse, scenery, lighting, object pools, and biome colors.
-- `dist/game.js`: input, game screens, local sound, effects, persistence.
+- `dist/game.js`: input, game screens, local sound, shouts, persistence.
 - `dist/biomes.mjs`: landscape palettes, paintings, and distance-based dissolves.
-- `dist/style.css`, `dist/index.html`: responsive game interface.
+- `dist/style.css`, `dist/index.html`: responsive game interface. Paintings sit in `.landscape`, pinned `center bottom` so rock bases meet the 3D trail.
 - `dist/assets/`: Three.js, license, and the three desert paintings.
 - `tests/game.test.mjs`: gameplay regression checks.
-- `dev-server.mjs`: a dependency-free local development server.
+- `dev-server.mjs`: a dependency-free local development server for `dist/`.
 - `wrangler.toml`: Cloudflare Pages project name and `dist/` output dir.
 
 The files in `dist/` are the authored source for this buildless project, not generated output. Edit them directly and refresh the browser. No bundled engine, framework, hosting SDK, API keys, or account connection is required.
