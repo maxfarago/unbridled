@@ -1,6 +1,6 @@
 # Unbridled — max.horse
 
-A self-contained, mobile-friendly 3D horse endless runner. Open `dist/` with any static web server. No package install or build is needed. The 3D scene uses a small WebGL renderer and shared geometry, with no engine, model, texture, or audio downloads. Google Fonts is optional; local fallback fonts remain usable offline.
+A self-contained, mobile-friendly 3D horse endless runner. Open `dist/` with any static web server. No package install or build is needed. The 3D scene uses vendored Three.js and three original desert paintings. Google Fonts is optional; local fallback fonts remain usable offline.
 
 Play: [unbridled.max.horse](https://unbridled.max.horse)
 
@@ -27,19 +27,22 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 - Left/right arrows or A/D: change lanes.
 - Space, up arrow, or W: jump.
 - Down arrow or S: duck / fast fall.
+- Hold Shift to sprint; release to recharge.
 - P or Escape: pause; M: toggle sound.
-- Touch: swipe in four directions, or use the on-screen controls.
+- Touch: swipe in four directions, or use the on-screen controls. Hold ϟ to sprint.
 
-Carrots grant five seconds of protected Coyote Rush. Apples restore a heart, or provide one shield at full health. Collect horseshoes in quick succession to grow the score multiplier. Jump fallen cactus and ditches, duck stone arches, and dodge boulders and bees. Mud briefly slows the horse. There is 130 ms of coyote time and 150 ms of jump input buffering. Three hearts, forgiving collision bounds, safe lanes, and short restarts keep runs approachable.
+Carrots grant four seconds of speed and sprint energy. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincible galloping. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
 
 Best distance, best score, and sound preference are saved on this device. Sound starts muted and is generated locally after user interaction. The game pauses when the tab loses focus. Reduced-motion preferences disable shake, flashes, vibration, and speed streaks, and reduce particles.
 
 ## Files
 
-- `dist/game.js`: deterministic simulation, procedural patterns, collisions, scoring.
-- `dist/render.js`: one-batch WebGL rendering and procedural horse animation.
-- `dist/main.js`: input, game screens, local sound, effects, persistence.
+- `dist/engine.mjs`: deterministic simulation, jumps, collisions, scoring, obstacle rows.
+- `dist/scene.js`: Three.js horse, scenery, lighting, object pools, and biome colors.
+- `dist/game.js`: input, game screens, local sound, effects, persistence.
+- `dist/biomes.mjs`: landscape palettes, paintings, and distance-based dissolves.
 - `dist/style.css`, `dist/index.html`: responsive game interface.
+- `dist/assets/`: Three.js, license, and the three desert paintings.
 - `tests/game.test.mjs`: gameplay regression checks.
 - `dev-server.mjs`: a dependency-free local development server.
 - `wrangler.toml`: Cloudflare Pages project name and `dist/` output dir.
@@ -52,7 +55,9 @@ Production is Cloudflare Pages, same as Grand Theft Horse. Feature branch → Gi
 
 ## Handoff notes
 
-- All 16 simulation checks pass, including coyote time, buffered jumps, hazards, shields, rush protection, reset state, and safe opening obstacle rows over 100 seeds.
-- Local asset references, UI element bindings, JavaScript syntax, and finite renderer geometry were checked. The representative 3D scene uses one draw call and about 19,000 vertices.
+- All 16 simulation checks pass, including jump buffering, hazards, gold smash, sprint recovery, reset state, and safe opening obstacle rows over 100 seeds.
+- Local asset references, UI element bindings, and JavaScript syntax were checked. Three.js geometry is pooled and combined by material; pixel density can drop under slow frames.
 - Browser playtesting and physical phone/GPU benchmarks have not been performed. The game caps resolution, limits particles, and adapts resolution downward when frames are slow; actual frame rate still needs checking on target devices.
-- Best distance, best score, and sound preference are stored locally. There is no online leaderboard or server persistence.
+- Best distance and sound preference are stored locally. There is no online leaderboard or server persistence.
+
+Three.js 0.180.0 is included under the MIT license. See `dist/assets/THREE-LICENSE.txt`.

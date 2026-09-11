@@ -10,6 +10,6 @@ Production is Cloudflare Pages, same as grand-theft-horse: feature branch → Gi
 
 - This is Unbridled: a 3-lane 3D horse endless runner at unbridled.max.horse.
 - `dist/` is the editable game source, not generated build output.
-- There is no build step and there are no npm dependencies to install.
+- There is no build step and there are no npm dependencies to install. Three.js 0.180 is vendored in `dist/assets/`.
 - Start with `npm run dev`. Run `npm test` for the 16 gameplay regression checks.
 - Read `README.md` for controls, testing limits, and deploy notes.
