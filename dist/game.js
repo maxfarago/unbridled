@@ -95,6 +95,12 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 async function init(){
-  try{view=createScene($('world'));await Promise.all(BIOMES.map(async biome=>{const image=new Image();image.src=new URL(biome.image,import.meta.url).href;await image.decode();}));updateLandscape();mode('menu');$('start').disabled=false;requestAnimationFrame(loop);}catch(error){console.error(error);$('error').hidden=false;$('error-message').textContent='The artwork or 3D graphics couldn’t load. Try a browser with WebGL enabled.';}
+  try{
+    const [,v]=await Promise.all([
+      Promise.all(BIOMES.map(async biome=>{const image=new Image();image.src=new URL(biome.image,import.meta.url).href;await image.decode();})),
+      createScene($('world'))
+    ]);
+    view=v;updateLandscape();mode('menu');$('start').disabled=false;requestAnimationFrame(loop);
+  }catch(error){console.error(error);$('error').hidden=false;$('error-message').textContent='The artwork or 3D graphics couldn’t load. Try a browser with WebGL enabled.';}
 }
 init();

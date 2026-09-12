@@ -1,0 +1,7 @@
+Horse Run Cycle On Place
+By Amitesh Nandan (https://sketchfab.com/creatureanimator)
+Source: https://sketchfab.com/3d-models/horse-run-cycle-on-place-8451f03cb1564436bfaa3964dd619a86
+License: Creative Commons Attribution-NoDerivatives 4.0 International
+https://creativecommons.org/licenses/by-nd/4.0/
+horse-run-lite.glb is a presentation shrink of that asset: unused maps dropped, morphs and animation keys reduced, meshopt + quantization applied. Do not treat it as the original Sketchfab file.
+Additional source credits: model Tomasz Jurczyk; textures Didac Ruiz; rig Carlos Contreras.
