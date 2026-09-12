@@ -2,6 +2,7 @@ import * as T from './assets/three.module.js';
 import {LANE_WIDTH} from './engine.mjs';
 import {BIOMES} from './biomes.mjs';
 import {RoadFrame,PLAYER_Z,ROAD_SEGMENTS,writeRoadStrip} from './road.mjs';
+import {loadHorse} from './horse-model.js';
 
 const palette={sand:0xd5a76a,trail:0xe6bb7b,cream:0xffe0a3,shadow:0x28374d,green:0x304e49,lightGreen:0x698270,coral:0xcb7250,brown:0x563b35,gold:0xffcd64};
 const materials=new Map();
@@ -58,7 +59,8 @@ function gold(){const g=new T.Group();const m=new T.Mesh(new T.TorusGeometry(.31
 function bees(){const g=new T.Group();for(let i=0;i<5;i++){const b=new T.Group();b.position.set((i%3-1)*.35,(i%2)*.28,(i%2)*.3);ell(b,0xf0bc47,0,0,0,.13,.13,.21);ell(b,0x342e39,0,0,.04,.134,.134,.045);for(const side of [-1,1]){const w=ell(b,0xdbe4d5,side*.15,.13,0,.14,.025,.10);w.rotation.z=side*.4;}g.add(b);}return g;}
 function mud(){const g=new T.Group();for(let i=0;i<4;i++){const m=ell(g,i%2?0x6a4b3a:0x7e5640,(i%2-.5)*.5,.035,(i-1.5)*.5,.65,.028,.5);}for(let i=0;i<3;i++)ell(g,0x9b7351,(i-1)*.3,.067,.25,.1,.01,.32);return g;}
 
-export function createScene(canvas){
+export async function createScene(canvas){
+  const horseRig=await loadHorse();
   const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));renderer.setClearColor(0,0);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;
   const scene=new T.Scene();scene.fog=new T.Fog(palette.sand,60,150);
@@ -78,7 +80,7 @@ export function createScene(canvas){
   // Static instanced trail marks and desert gravel travel as one bounded batch.
   const count=430,gravel=new T.InstancedMesh(box,mat(0xb98b59),count),matrix=new T.Object3D();const marks=[];
   for(let i=0;i<count;i++){const x=i<190?(Math.random()-.5)*7.6:(Math.random()<.5?-1:1)*(4.7+Math.random()*34);marks.push({x,z:Math.random()*180-170,w:.025+Math.random()*.08,l:.14+Math.random()*.8});}scene.add(gravel);
-  const horseRig=horse();scene.add(horseRig.root);
+  scene.add(horseRig.root);
   const shadowMat=new T.MeshBasicMaterial({color:palette.shadow,transparent:true,opacity:.23,depthWrite:false});
   const shadow=new T.Mesh(new T.CircleGeometry(1,24),shadowMat);shadow.rotation.x=-Math.PI/2;shadow.scale.set(.66,1.36,1);shadow.position.y=.025;scene.add(shadow);
   const scenery=[];
@@ -103,11 +105,7 @@ export function createScene(canvas){
     const gallop=elapsed*(s.mode==='menu'?9:Math.max(7,s.speed*.50));
     const cornerLean=reduceMotion?0:T.MathUtils.clamp(s.speed*s.speed*roadFrame.curvature*.012,-.1,.1);
     horseRig.root.position.set(s.x,s.y,PLAYER_Z);horseRig.root.rotation.z=-(s.lane*LANE_WIDTH-s.x)*.075-cornerLean;
-    horseRig.body.position.y=s.y>0?.03:Math.sin(gallop*2)*.055;
-    horseRig.body.rotation.x=s.y>0?-.07:Math.cos(gallop)*.018;
-    for(const leg of horseRig.legs){leg.pivot.rotation.x=s.y>0?.6:Math.sin(gallop+leg.phase)*.73;leg.knee.rotation.x=s.y>0?-1:Math.max(0,Math.cos(gallop+leg.phase))*.85;}
-    horseRig.head.rotation.x=Math.sin(gallop)*.05;horseRig.tail.rotation.x=.1+Math.cos(gallop)*.18;horseRig.tail.rotation.z=Math.sin(elapsed*6)*.16;
-    if(s.duck){horseRig.root.scale.y=.54;horseRig.body.rotation.x=.1;}else horseRig.root.scale.y=1;
+    horseRig.update(s,dt,moving);
     horseRig.root.visible=!(s.invincible>2.01||s.invincible<=0)&&s.mode==='running'?Math.sin(elapsed*35)>-.45:true;
     shadow.position.x=s.x;shadow.position.z=PLAYER_Z;shadow.scale.set(.66+s.y*.14,1.36+s.y*.2,1);shadowMat.opacity=.23-s.y*.05;
     for(let i=0;i<marks.length;i++){const p=marks[i];p.z+=travel;if(p.z>12)p.z-=180;roadFrame.sample(PLAYER_Z-p.z,p.x,roadPoint);matrix.position.set(roadPoint.x,.012,roadPoint.z);matrix.rotation.set(0,roadPoint.yaw,0);matrix.scale.set(p.w,.012,p.l);matrix.updateMatrix();gravel.setMatrixAt(i,matrix.matrix);}gravel.instanceMatrix.needsUpdate=true;
@@ -134,5 +132,5 @@ export function createScene(canvas){
     scene.fog.color.copy(from.ground).lerp(to.ground,blend);skyLight.color.copy(from.skyLight).lerp(to.skyLight,blend);skyLight.groundColor.copy(from.groundLight).lerp(to.groundLight,blend);sun.color.copy(from.sun).lerp(to.sun,blend);shadowMat.color.set(0x080b21);
   }
   setBiome(0,1,0);
-  return {render,obtain,release,burst,setBiome,renderer,scene,dispose(){resizeObserver.disconnect();renderer.dispose();}};
+  return {render,obtain,release,burst,setBiome,renderer,scene,dispose(){resizeObserver.disconnect();horseRig.dispose();renderer.dispose();}};
 }
