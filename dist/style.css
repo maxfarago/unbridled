@@ -5,7 +5,7 @@
 
 #landscape-next{opacity:0;transition:opacity .12s linear;will-change:opacity}.edition b{font-weight:500}
 .trail-stamp{position:absolute;right:7%;top:28%;height:118px;width:118px;border:1px solid #fcf8e87a;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(12deg);color:var(--navy);background:var(--gold);box-shadow:0 0 0 6px #f2e08a28;z-index:4;pointer-events:none}.trail-stamp span{font-size:10px;letter-spacing:1.4px;font-weight:800}.trail-stamp b{font-family:'Barlow Condensed',Impact,sans-serif;font-size:44px;line-height:1.2}#game:not([data-mode=loading]):not([data-mode=menu]) .trail-stamp{display:none}.no-script{position:absolute;inset:0;background:var(--navy);display:grid;place-items:center;z-index:20}@media(max-width:700px){.trail-stamp{right:25px;top:27%;width:82px;height:82px}.trail-stamp b{font-size:31px}.title-star{font-size:36px;right:-38px}}
-#hud{top:100px;left:36px;right:36px;align-items:flex-start;filter:drop-shadow(0 2px 0 #120820);text-shadow:none}
+#hud{top:100px;left:36px;right:36px;align-items:flex-start;text-shadow:none}
 .tiny-label{display:block;font-size:10px;letter-spacing:1.8px;font-weight:800;color:#fff8dac9}
 #hearts{font-size:26px;letter-spacing:4px;color:var(--coral);line-height:1.6;text-shadow:2px 2px 0 #120820;min-height:0}
 .score-block{position:absolute;left:50%;top:-10px;transform:translateX(-50%);text-align:center}
@@ -14,7 +14,7 @@
 .status-block b{font-family:'Barlow Condensed',Impact,sans-serif;font-size:20px;font-weight:700;letter-spacing:.3px;font-variant-numeric:tabular-nums;display:block;line-height:1.2}
 .status-block small{font-size:11px;letter-spacing:.6px;font-weight:800;color:#fcf8e8a6}
 #gait{display:block;margin-top:4px;font-size:10px;letter-spacing:1.6px;font-weight:800;color:#fff8dac9}
-#toast{top:34%;transform:translate(-50%,-12px) rotate(-3deg);font-family:'Barlow Condensed',Impact,sans-serif;font-style:italic;font-size:42px;font-weight:800;letter-spacing:1.4px;color:var(--gold);text-shadow:-1px 0 0 #120820,1px 0 0 #120820,0 1px 0 #120820,0 -1px 0 #120820,4px 5px 0 #120820;background:none;padding:0;border-radius:0;transition:opacity .15s,transform .15s}
+#toast{top:34%;transform:translate(-50%,-12px) rotate(-3deg);font-family:'Barlow Condensed',Impact,sans-serif;font-style:italic;font-size:42px;font-weight:800;letter-spacing:1.4px;color:var(--gold);text-shadow:var(--ink-poster);background:none;padding:0;border-radius:0;transition:opacity .15s,transform .15s}
 #toast.show{transform:translate(-50%,0) rotate(-3deg)}
 #toast[data-tone="hit"]{color:var(--coral)}
 #toast[data-tone="mud"]{color:#e8d4b0}
@@ -27,7 +27,13 @@ header{justify-content:flex-end}
 footer{justify-content:flex-start}
 .landscape{background-position:center bottom}
 @media(max-width:700px){.landscape{background-position:center bottom}}
-h1{font-family:'Barlow Condensed',Impact,sans-serif;font-style:italic;font-weight:800;color:var(--gold);font-size:clamp(56px,8vw,96px);letter-spacing:1.4px;line-height:.9;margin:8px 0 28px;width:auto;transform:rotate(-3deg);transform-origin:left center;text-shadow:-1px 0 0 #120820,1px 0 0 #120820,0 1px 0 #120820,0 -1px 0 #120820,4px 5px 0 #120820}
+:root{--ink-poster:-1px 0 0 #120820,1px 0 0 #120820,0 1px 0 #120820,0 -1px 0 #120820,4px 5px 0 #120820}
+h1,.brand-icon,.brand-game,.title-star,.distance-block b,.trail-stamp b,dialog h2,#error h2,.score-block b,.status-block b,.result b,#toast,#start kbd{
+  font-family:'Barlow Condensed',Impact,sans-serif;
+  text-transform:uppercase;
+  text-shadow:var(--ink-poster);
+}
+h1{font-family:'Barlow Condensed',Impact,sans-serif;font-style:italic;font-weight:800;color:var(--gold);font-size:clamp(56px,8vw,96px);letter-spacing:1.4px;line-height:.9;margin:8px 0 28px;width:auto;transform:rotate(-3deg);transform-origin:left center;text-shadow:var(--ink-poster)}
 @media(max-width:700px){h1{font-size:clamp(48px,13vw,76px);margin:10px 0 22px}}
 @media(max-height:650px){h1{font-size:clamp(44px,9vh,72px)}}
 

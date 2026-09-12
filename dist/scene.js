@@ -1,6 +1,7 @@
 import * as T from './assets/three.module.js';
 import {LANE_WIDTH} from './engine.mjs';
 import {BIOMES} from './biomes.mjs';
+import {RoadFrame,PLAYER_Z,ROAD_SEGMENTS,writeRoadStrip} from './road.mjs';
 
 const palette={sand:0xd5a76a,trail:0xe6bb7b,cream:0xffe0a3,shadow:0x28374d,green:0x304e49,lightGreen:0x698270,coral:0xcb7250,brown:0x563b35,gold:0xffcd64};
 const materials=new Map();
@@ -64,8 +65,16 @@ export function createScene(canvas){
   const camera=new T.PerspectiveCamera(46,1,.1,220);
   const skyLight=new T.HemisphereLight(0xffedc5,0x546778,2.3);scene.add(skyLight);const sun=new T.DirectionalLight(0xffdfac,3);sun.position.set(-12,18,-9);scene.add(sun);
   const ground=new T.Mesh(new T.PlaneGeometry(600,400),mat(palette.sand));ground.rotation.x=-Math.PI/2;ground.position.set(0,-.05,-150);scene.add(ground);
-  const road=new T.Mesh(new T.PlaneGeometry(8.0,240),mat(palette.trail));road.rotation.x=-Math.PI/2;road.position.set(0,0,-100);scene.add(road);
-  for(const x of [-4.12,4.12]){const border=new T.Mesh(new T.PlaneGeometry(.12,240),mat(0xad8055));border.rotation.x=-Math.PI/2;border.position.set(x,.013,-100);scene.add(border);}
+  const roadFrame=new RoadFrame(),roadPoint={},ribbons=[];
+  function ribbon(left,right,height,color){
+    const geometry=new T.BufferGeometry(),positions=new Float32Array((ROAD_SEGMENTS+1)*6),normals=new Float32Array(positions.length),indices=[];
+    for(let i=1;i<normals.length;i+=3)normals[i]=1;
+    for(let i=0;i<ROAD_SEGMENTS;i++){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}
+    geometry.setAttribute('position',new T.BufferAttribute(positions,3).setUsage(T.DynamicDrawUsage));geometry.setAttribute('normal',new T.BufferAttribute(normals,3));geometry.setIndex(indices);
+    writeRoadStrip(positions,roadFrame,left,right,height);
+    const object=new T.Mesh(geometry,mat(color));object.frustumCulled=false;scene.add(object);ribbons.push({geometry,positions,left,right,height});
+  }
+  ribbon(-4,4,0,palette.trail);ribbon(-4.18,-4.06,.013,0xad8055);ribbon(4.06,4.18,.013,0xad8055);
   // Static instanced trail marks and desert gravel travel as one bounded batch.
   const count=430,gravel=new T.InstancedMesh(box,mat(0xb98b59),count),matrix=new T.Object3D();const marks=[];
   for(let i=0;i<count;i++){const x=i<190?(Math.random()-.5)*7.6:(Math.random()<.5?-1:1)*(4.7+Math.random()*34);marks.push({x,z:Math.random()*180-170,w:.025+Math.random()*.08,l:.14+Math.random()*.8});}scene.add(gravel);
@@ -74,13 +83,13 @@ export function createScene(canvas){
   const shadow=new T.Mesh(new T.CircleGeometry(1,24),shadowMat);shadow.rotation.x=-Math.PI/2;shadow.scale.set(.66,1.36,1);shadow.position.y=.025;scene.add(shadow);
   const scenery=[];
   for(let i=0;i<58;i++){let obj;const type=i%12;if(type<4)obj=cactus();else if(type===4||type===8)obj=tree();else if(type===5)obj=rabbit();else if(type===7){obj=horse(.65,0x64534a).root;obj.rotation.y=1.3;}else if(type<10)obj=shrub();else{obj=new T.Group();ell(obj,i%2?0x9c775b:0xbd9062,0,.3,0,.8,.5,.65);}
-    combineStatic(obj);const side=i%2===0?-1:1;obj.position.set(side*(5.3+Math.random()*21),0,-Math.random()*175);const scale=.7+Math.random()*.5;obj.scale.multiplyScalar(scale);scene.add(obj);scenery.push(obj);
+    combineStatic(obj);const side=i%2===0?-1:1;const scale=.7+Math.random()*.5;obj.scale.multiplyScalar(scale);scene.add(obj);scenery.push({object:obj,offset:side*(5.3+Math.random()*21),z:-Math.random()*175});
   }
   // Reuse pickup/obstacle groups so an endless run never grows GPU memory.
   const factories={fence,carrot,apple,gold,bees,mud},pools={};for(const [type,factory] of Object.entries(factories)){pools[type]=[];const template=combineStatic(factory());for(let i=0;i<22;i++){const object=template.clone();object.visible=false;scene.add(object);pools[type].push(object);}}
   const sparkleMat=new T.MeshBasicMaterial({color:0xffe5a5});const particles=new T.InstancedMesh(new T.IcosahedronGeometry(.045,0),sparkleMat,100);scene.add(particles);const dust=Array.from({length:100},()=>({life:0,x:0,y:0,z:0,vx:0,vy:0,vz:0}));let dustIndex=0;
   const ring=new T.Mesh(new T.TorusGeometry(.85,.018,5,45),new T.MeshBasicMaterial({color:palette.gold,transparent:true,opacity:.8}));ring.rotation.x=Math.PI/2;ring.position.y=.08;ring.visible=false;scene.add(ring);
-  let elapsed=0,frame=0,slowFrames=0,quality=1.65;
+  let elapsed=0,frame=0,slowFrames=0,quality=1.65,cameraLead=0,lastRoadDistance=-1;
   const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.8?56:46;camera.updateProjectionMatrix();}
   const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(canvas);resize();
@@ -89,24 +98,31 @@ export function createScene(canvas){
   function burst(x,y,z,n=22){for(let i=0;i<n;i++){const p=dust[dustIndex++%dust.length];Object.assign(p,{life:.5+Math.random()*.4,x,y,z,vx:(Math.random()-.5)*4,vy:Math.random()*3,vz:(Math.random()-.5)*5});}}
   function render(s,dt,items,shake=0){
     const moving=s.mode==='running'||s.mode==='menu';const travel=moving?(s.mode==='menu'?5:s.speed)*dt:0;elapsed+=moving?dt:0;
+    roadFrame.setDistance(s.distance);
+    for(const strip of ribbons){writeRoadStrip(strip.positions,roadFrame,strip.left,strip.right,strip.height);strip.geometry.attributes.position.needsUpdate=true;}
     const gallop=elapsed*(s.mode==='menu'?9:Math.max(7,s.speed*.50));
-    horseRig.root.position.set(s.x,s.y,1.4);horseRig.root.rotation.z=-(s.lane*LANE_WIDTH-s.x)*.075;
+    const cornerLean=reduceMotion?0:T.MathUtils.clamp(s.speed*s.speed*roadFrame.curvature*.012,-.1,.1);
+    horseRig.root.position.set(s.x,s.y,PLAYER_Z);horseRig.root.rotation.z=-(s.lane*LANE_WIDTH-s.x)*.075-cornerLean;
     horseRig.body.position.y=s.y>0?.03:Math.sin(gallop*2)*.055;
     horseRig.body.rotation.x=s.y>0?-.07:Math.cos(gallop)*.018;
     for(const leg of horseRig.legs){leg.pivot.rotation.x=s.y>0?.6:Math.sin(gallop+leg.phase)*.73;leg.knee.rotation.x=s.y>0?-1:Math.max(0,Math.cos(gallop+leg.phase))*.85;}
     horseRig.head.rotation.x=Math.sin(gallop)*.05;horseRig.tail.rotation.x=.1+Math.cos(gallop)*.18;horseRig.tail.rotation.z=Math.sin(elapsed*6)*.16;
     if(s.duck){horseRig.root.scale.y=.54;horseRig.body.rotation.x=.1;}else horseRig.root.scale.y=1;
     horseRig.root.visible=!(s.invincible>2.01||s.invincible<=0)&&s.mode==='running'?Math.sin(elapsed*35)>-.45:true;
-    shadow.position.x=s.x;shadow.position.z=1.4;shadow.scale.set(.66+s.y*.14,1.36+s.y*.2,1);shadowMat.opacity=.23-s.y*.05;
-    for(let i=0;i<marks.length;i++){const p=marks[i];p.z+=travel;if(p.z>12)p.z-=180;matrix.position.set(p.x,.012,p.z);matrix.rotation.set(0,0,0);matrix.scale.set(p.w,.012,p.l);matrix.updateMatrix();gravel.setMatrixAt(i,matrix.matrix);}gravel.instanceMatrix.needsUpdate=true;
-    for(const obj of scenery){obj.position.z+=travel;if(obj.position.z>16){obj.position.z-=190;obj.position.x=Math.sign(obj.position.x)*(5.3+Math.random()*21);}}
-    for(const item of items){const obj=item.object;if(!obj)continue;obj.position.set(item.lane*LANE_WIDTH,['fence','mud'].includes(item.type)?0:item.type==='bees'?1.75:1.35+Math.sin(elapsed*3+item.z)*.1,item.z);if(['carrot','apple','gold'].includes(item.type))obj.rotation.y=elapsed*1.8;if(item.type==='bees'){obj.rotation.y=Math.sin(elapsed*4)*.3;obj.position.x+=Math.sin(elapsed*8)*.08;}}
+    shadow.position.x=s.x;shadow.position.z=PLAYER_Z;shadow.scale.set(.66+s.y*.14,1.36+s.y*.2,1);shadowMat.opacity=.23-s.y*.05;
+    for(let i=0;i<marks.length;i++){const p=marks[i];p.z+=travel;if(p.z>12)p.z-=180;roadFrame.sample(PLAYER_Z-p.z,p.x,roadPoint);matrix.position.set(roadPoint.x,.012,roadPoint.z);matrix.rotation.set(0,roadPoint.yaw,0);matrix.scale.set(p.w,.012,p.l);matrix.updateMatrix();gravel.setMatrixAt(i,matrix.matrix);}gravel.instanceMatrix.needsUpdate=true;
+    for(const p of scenery){p.z+=travel;if(p.z>16){p.z-=190;p.offset=Math.sign(p.offset)*(5.3+Math.random()*21);}roadFrame.sample(PLAYER_Z-p.z,p.offset,roadPoint);p.object.position.set(roadPoint.x,0,roadPoint.z);p.object.rotation.y=roadPoint.yaw;}
+    for(const item of items){const obj=item.object;if(!obj)continue;roadFrame.sample(PLAYER_Z-item.z,item.lane*LANE_WIDTH+(item.type==='bees'?Math.sin(elapsed*8)*.08:0),roadPoint);obj.position.set(roadPoint.x,['fence','mud'].includes(item.type)?0:item.type==='bees'?1.75:1.35+Math.sin(elapsed*3+item.z)*.1,roadPoint.z);obj.rotation.y=roadPoint.yaw;if(['carrot','apple','gold'].includes(item.type))obj.rotation.y+=elapsed*1.8;if(item.type==='bees')obj.rotation.y+=Math.sin(elapsed*4)*.3;}
     if(moving&&frame++%3===0&&s.y<.1) {const p=dust[dustIndex++%dust.length];Object.assign(p,{life:.45,x:s.x+(Math.random()-.5)*.5,y:.12,z:2.4,vx:(Math.random()-.5),vy:.5,vz:3});}
-    for(let i=0;i<dust.length;i++){const p=dust[i];p.life=Math.max(0,p.life-dt);p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;matrix.position.set(p.x,p.y,p.z);matrix.scale.setScalar(p.life>0?p.life*2:0);matrix.updateMatrix();particles.setMatrixAt(i,matrix.matrix);}particles.instanceMatrix.needsUpdate=true;
-    const boost=(s.gold>0||s.carrot>0||s.sprinting&&s.energy>1);ring.visible=s.gold>0||s.invincible>0;ring.position.x=s.x;ring.position.z=1.4;ring.rotation.z+=dt;
+    for(let i=0;i<dust.length;i++){const p=dust[i];const particleDt=moving?dt:0;p.life=Math.max(0,p.life-particleDt);p.x+=p.vx*particleDt;p.y+=p.vy*particleDt;p.z+=p.vz*particleDt+travel;roadFrame.sample(PLAYER_Z-p.z,p.x,roadPoint);matrix.position.set(roadPoint.x,p.y,roadPoint.z);matrix.scale.setScalar(p.life>0?p.life*2:0);matrix.updateMatrix();particles.setMatrixAt(i,matrix.matrix);}particles.instanceMatrix.needsUpdate=true;
+    const boost=(s.gold>0||s.carrot>0||s.sprinting&&s.energy>1);ring.visible=s.gold>0||s.invincible>0;ring.position.x=s.x;ring.position.z=PLAYER_Z;ring.rotation.z+=dt;
     const desiredFov=(camera.aspect<.8?56:46)+(boost&&!reduceMotion?5:0);camera.fov+=(desiredFov-camera.fov)*dt*3;camera.updateProjectionMatrix();
     const bob=reduceMotion?0:Math.sin(gallop*2)*.015;
-    camera.position.set(s.x*.12+(reduceMotion?0:(Math.random()-.5)*shake*.22),4.5+bob,12.7);camera.lookAt(s.x*.12,1.15,-30);
+    roadFrame.sample(32,0,roadPoint);const leadTarget=reduceMotion?0:roadPoint.x*.35;
+    if(lastRoadDistance<0||s.distance<lastRoadDistance)cameraLead=leadTarget;
+    else if(moving)cameraLead+=(leadTarget-cameraLead)*(1-Math.exp(-3*dt));
+    lastRoadDistance=s.distance;
+    camera.position.set(s.x*.12+(reduceMotion?0:(Math.random()-.5)*shake*.22),4.5+bob,12.7);camera.lookAt(s.x*.12+cameraLead,1.15,-30);
     renderer.render(scene,camera);
     if(dt>.026&&moving)slowFrames++;else slowFrames=Math.max(0,slowFrames-1);
     if(slowFrames>110&&quality>1){quality=1;renderer.setPixelRatio(Math.min(devicePixelRatio,1));resize();slowFrames=0;}
