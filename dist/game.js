@@ -73,7 +73,7 @@ function updateUI(){
 }
 function updateLandscape(){
   const {index,next,blend,segment}=landscapeAt(state.distance);
-  if(currentLandscape!==index){$('landscape-base').style.backgroundImage=`url('${BIOMES[index].image}')`;$('landscape-next').style.backgroundImage=`url('${BIOMES[next].image}')`;currentLandscape=index;}
+  if(currentLandscape!==index){$('landscape-next').style.opacity=0;$('landscape-base').style.backgroundImage=`url('${BIOMES[index].image}')`;$('landscape-next').style.backgroundImage=`url('${BIOMES[next].image}')`;currentLandscape=index;}
   $('landscape-next').style.opacity=blend;view.setBiome(index,next,blend);
   if(segment!==lastSegment&&state.mode==='running'){lastSegment=segment;toast(`ENTERING ${BIOMES[index].name}`,'ok');}
 }
