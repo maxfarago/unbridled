@@ -11,6 +11,21 @@ try{
 $('intro-best').textContent=Math.floor(best).toLocaleString();
 $('sound').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');
 $('sound-wave').setAttribute('d',muted?'m16 9 5 6m0-6-5 6':'M15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14');
+const chromeProbe=document.createElement('div');
+chromeProbe.setAttribute('aria-hidden','true');
+chromeProbe.style.cssText='position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;visibility:hidden';
+document.body.appendChild(chromeProbe);
+function pinChrome(){
+  const vv=window.visualViewport,game=$('game');
+  if(!game)return;
+  const overlap=vv?Math.max(0,game.getBoundingClientRect().bottom-(vv.offsetTop+vv.height)):0;
+  const safe=chromeProbe.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--vv-bottom',Math.max(0,overlap-safe)+'px');
+}
+pinChrome();
+window.addEventListener('resize',pinChrome);
+window.visualViewport?.addEventListener('resize',pinChrome);
+window.visualViewport?.addEventListener('scroll',pinChrome);
 function mode(value){state.mode=value;$('game').dataset.mode=value;}
 function toast(text,tone=''){$('toast').textContent=text;$('toast').dataset.tone=tone;$('toast').classList.add('show');toastTime=1.6;}
 function sound(kind){
@@ -66,7 +81,7 @@ const toastTone={apple:'ok',mud:'mud',hit:'hit',protected:'ok'};
 function updateUI(){
   $('score').textContent=totalScore().toLocaleString();$('hearts').textContent='♥ '.repeat(state.hearts)+'♡ '.repeat(3-state.hearts);$('hearts').setAttribute('aria-label',`${state.hearts} hearts`);
   $('energy').style.transform=`scaleX(${state.energy/100})`;$('energy-label').textContent=state.energy<5?'CATCH YOUR BREATH':matchMedia('(pointer:coarse)').matches?'HOLD ϟ':'HOLD SHIFT';
-  $('speed').textContent=Math.round(state.speed*1.8);$('gait').textContent=state.mud?'MUDDY':state.sting?'STUNG':state.gold?'GOLDEN':state.sprinting&&state.energy>1?'SPRINT':state.carrot?'BOOST':'CANTER';
+  $('speed').textContent=Math.round(state.speed*1.8);
   let label='',ratio=0;if(state.gold){label='✦ GOLDEN GALLOP';ratio=state.gold/5;}else if(state.mud){label='MUDDY HOOVES';ratio=state.mud/2.2;}else if(state.sting){label='BEE STING';ratio=state.sting/1.8;}else if(state.carrot){label='CARROT KICK';ratio=state.carrot/4;}else if(state.invincible){label='PROTECTED';ratio=state.invincible/2;}
   $('effect-label').textContent=label;$('effect-time').style.transform=`scaleX(${ratio})`;
   $('speed-lines').style.opacity=state.mode==='running'&&(state.gold||state.carrot||state.sprinting&&state.energy>1)?'.7':'0';
