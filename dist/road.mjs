@@ -2,6 +2,8 @@ export const PLAYER_Z=1.4;
 export const ROAD_SEGMENTS=104;
 export const ROAD_NEAR=-16;
 export const ROAD_FAR=192;
+export const ROAD_TILE=8;
+export const ROAD_SHOULDER=.36;
 
 // Two long, smooth waves make broad bends without repeating every few seconds.
 // These are longitudinal course coordinates; collision distances remain unchanged.
@@ -39,5 +41,12 @@ export function writeRoadStrip(positions,frame,left,right,height=0){
       const at=(i*2+side)*3;
       positions[at]=p.x;positions[at+1]=height;positions[at+2]=p.z;
     }
+  }
+}
+// course-local uvs; texture offset scrolls along the track
+export function writeRoadUVs(uvs,left,right){
+  for(let i=0;i<=ROAD_SEGMENTS;i++){
+    const ahead=ROAD_NEAR+(ROAD_FAR-ROAD_NEAR)*i/ROAD_SEGMENTS,at=i*4;
+    uvs[at]=left/ROAD_TILE;uvs[at+1]=ahead/ROAD_TILE;uvs[at+2]=right/ROAD_TILE;uvs[at+3]=ahead/ROAD_TILE;
   }
 }

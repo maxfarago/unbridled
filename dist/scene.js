@@ -1,7 +1,7 @@
 import * as T from './assets/three.module.js';
 import {LANE_WIDTH} from './engine.mjs';
 import {BIOMES} from './biomes.mjs';
-import {RoadFrame,PLAYER_Z,ROAD_SEGMENTS,writeRoadStrip} from './road.mjs';
+import {RoadFrame,PLAYER_Z,ROAD_SEGMENTS,ROAD_TILE,ROAD_SHOULDER,writeRoadStrip,writeRoadUVs} from './road.mjs';
 import {loadHorse} from './horse-model.js';
 
 const palette={sand:0xd5a76a,trail:0xe6bb7b,cream:0xffe0a3,shadow:0x28374d,green:0x304e49,lightGreen:0x698270,coral:0xcb7250,brown:0x563b35,gold:0xffcd64};
@@ -64,13 +64,17 @@ export async function createScene(canvas){
   const renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));renderer.setClearColor(0,0);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;
   const loader=new T.TextureLoader(),aniso=renderer.capabilities.getMaxAnisotropy();
-  const [horseRig,groundMaps]=await Promise.all([
+  const [horseRig,groundMaps,roadTex]=await Promise.all([
     loadHorse(),
     Promise.all(BIOMES.map(async biome=>{
       const tex=await loader.loadAsync(new URL(biome.floor,import.meta.url).href);
       tex.colorSpace=T.SRGBColorSpace;tex.wrapS=tex.wrapT=T.RepeatWrapping;
       tex.repeat.set(600/GROUND_TILE,400/GROUND_TILE);tex.anisotropy=aniso;return tex;
-    }))
+    })),
+    loader.loadAsync(new URL('./assets/road-sand.jpg',import.meta.url).href).then(tex=>{
+      tex.colorSpace=T.SRGBColorSpace;tex.wrapS=tex.wrapT=T.RepeatWrapping;
+      tex.minFilter=T.LinearMipmapLinearFilter;tex.magFilter=T.LinearFilter;tex.generateMipmaps=true;tex.anisotropy=aniso;return tex;
+    })
   ]);
   const scene=new T.Scene();scene.fog=new T.Fog(palette.sand,60,150);
   const camera=new T.PerspectiveCamera(46,1,.1,220);
@@ -80,15 +84,21 @@ export async function createScene(canvas){
   const ground=new T.Mesh(groundGeom,groundMat(groundMaps[0]));ground.rotation.x=-Math.PI/2;ground.position.set(0,-.05,-150);scene.add(ground);
   const groundNext=new T.Mesh(groundGeom,groundMat(groundMaps[1],true));groundNext.rotation.x=-Math.PI/2;groundNext.position.set(0,-.048,-150);scene.add(groundNext);
   const roadFrame=new RoadFrame(),roadPoint={},ribbons=[];
-  function ribbon(left,right,height,color){
-    const geometry=new T.BufferGeometry(),positions=new Float32Array((ROAD_SEGMENTS+1)*6),normals=new Float32Array(positions.length),indices=[];
+  const fadePixels=256,fadeData=new Uint8Array(fadePixels*4);
+  for(let i=0;i<fadePixels;i++){const a=i;fadeData.set([a,a,a,255],i*4);}
+  const fadeTex=new T.DataTexture(fadeData,fadePixels,1,T.RGBAFormat);fadeTex.colorSpace=T.NoColorSpace;fadeTex.minFilter=T.LinearFilter;fadeTex.magFilter=T.LinearFilter;fadeTex.wrapS=T.ClampToEdgeWrapping;fadeTex.wrapT=T.ClampToEdgeWrapping;fadeTex.channel=1;fadeTex.needsUpdate=true;
+  const roadMat=new T.MeshStandardMaterial({map:roadTex,color:palette.trail,roughness:1});materials.set(palette.trail,roadMat);
+  const shoulderMat=roadMat.clone();shoulderMat.transparent=true;shoulderMat.depthWrite=false;shoulderMat.alphaMap=fadeTex;shoulderMat.polygonOffset=true;shoulderMat.polygonOffsetFactor=1;shoulderMat.polygonOffsetUnits=1;shoulderMat.color=roadMat.color;
+  function ribbon(left,right,height,material,outerIsLeft){
+    const geometry=new T.BufferGeometry(),positions=new Float32Array((ROAD_SEGMENTS+1)*6),normals=new Float32Array(positions.length),uvs=new Float32Array((ROAD_SEGMENTS+1)*4),indices=[];
     for(let i=1;i<normals.length;i+=3)normals[i]=1;
     for(let i=0;i<ROAD_SEGMENTS;i++){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}
-    geometry.setAttribute('position',new T.BufferAttribute(positions,3).setUsage(T.DynamicDrawUsage));geometry.setAttribute('normal',new T.BufferAttribute(normals,3));geometry.setIndex(indices);
-    writeRoadStrip(positions,roadFrame,left,right,height);
-    const object=new T.Mesh(geometry,mat(color));object.frustumCulled=false;scene.add(object);ribbons.push({geometry,positions,left,right,height});
+    geometry.setAttribute('position',new T.BufferAttribute(positions,3).setUsage(T.DynamicDrawUsage));geometry.setAttribute('normal',new T.BufferAttribute(normals,3));geometry.setAttribute('uv',new T.BufferAttribute(uvs,2));geometry.setIndex(indices);
+    writeRoadStrip(positions,roadFrame,left,right,height);writeRoadUVs(uvs,left,right);
+    if(outerIsLeft!==undefined){const uv1=new Float32Array((ROAD_SEGMENTS+1)*4);for(let i=0;i<=ROAD_SEGMENTS;i++){const at=i*4;uv1[at]=outerIsLeft?0:1;uv1[at+2]=outerIsLeft?1:0;}geometry.setAttribute('uv1',new T.BufferAttribute(uv1,2));}
+    const object=new T.Mesh(geometry,material);object.frustumCulled=false;scene.add(object);ribbons.push({geometry,positions,left,right,height});
   }
-  ribbon(-4,4,0,palette.trail);ribbon(-4.18,-4.06,.013,0xad8055);ribbon(4.06,4.18,.013,0xad8055);
+  ribbon(-4,4,0,roadMat);ribbon(-4-ROAD_SHOULDER,-4,0,shoulderMat,true);ribbon(4,4+ROAD_SHOULDER,0,shoulderMat,false);
   // Static instanced trail marks and desert gravel travel as one bounded batch.
   const count=430,gravel=new T.InstancedMesh(box,mat(0xb98b59),count),matrix=new T.Object3D();const marks=[];
   for(let i=0;i<count;i++){const x=i<190?(Math.random()-.5)*7.6:(Math.random()<.5?-1:1)*(4.7+Math.random()*34);marks.push({x,z:Math.random()*180-170,w:.025+Math.random()*.08,l:.14+Math.random()*.8});}scene.add(gravel);
@@ -132,7 +142,7 @@ export async function createScene(canvas){
     if(lastRoadDistance<0||s.distance<lastRoadDistance)cameraLead=leadTarget;
     else if(moving)cameraLead+=(leadTarget-cameraLead)*(1-Math.exp(-3*dt));
     lastRoadDistance=s.distance;
-    groundTravel+=travel;const scroll=groundTravel/GROUND_TILE;for(const tex of groundMaps)tex.offset.y=scroll;
+    groundTravel+=travel;const scroll=groundTravel/GROUND_TILE;for(const tex of groundMaps)tex.offset.y=scroll;roadTex.offset.y=groundTravel/ROAD_TILE;
     camera.position.set(s.x*.12+(reduceMotion?0:(Math.random()-.5)*shake*.22),4.5+bob,12.7);camera.lookAt(s.x*.12+cameraLead,1.15,-30);
     renderer.render(scene,camera);
     if(dt>.026&&moving)slowFrames++;else slowFrames=Math.max(0,slowFrames-1);
@@ -147,5 +157,5 @@ export async function createScene(canvas){
     scene.fog.color.copy(from.ground).lerp(to.ground,blend);skyLight.color.copy(from.skyLight).lerp(to.skyLight,blend);skyLight.groundColor.copy(from.groundLight).lerp(to.groundLight,blend);sun.color.copy(from.sun).lerp(to.sun,blend);shadowMat.color.set(0x080b21);
   }
   setBiome(0,1,0);
-  return {render,obtain,release,burst,setBiome,renderer,scene,dispose(){resizeObserver.disconnect();horseRig.dispose();for(const tex of groundMaps)tex.dispose();ground.material.dispose();groundNext.material.dispose();renderer.dispose();}};
+  return {render,obtain,release,burst,setBiome,renderer,scene,dispose(){resizeObserver.disconnect();horseRig.dispose();for(const tex of groundMaps)tex.dispose();ground.material.dispose();groundNext.material.dispose();roadTex.dispose();fadeTex.dispose();roadMat.dispose();shoulderMat.dispose();for(const strip of ribbons)strip.geometry.dispose();renderer.dispose();}};
 }
