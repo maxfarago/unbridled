@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { freshState, steer, jump, duck, tick, interact, makeRow } from '../dist/engine.mjs';
+import { BIOMES } from '../dist/biomes.mjs';
 
 function running() {
   const s = freshState();
@@ -104,4 +108,11 @@ test('pickup streaks grow the score multiplier', () => {
 });
 test('identical seeds generate identical opening tracks', () => {
   assert.deepEqual(makeRow(0, rng(777)), makeRow(0, rng(777)));
+});
+test('each biome has a matching tiled floor texture', () => {
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist');
+  for (const biome of BIOMES) {
+    assert.equal(biome.floor, biome.image.replace('./assets/', './assets/ground-'));
+    assert.equal(existsSync(join(root, biome.floor.replace(/^\.\//, ''))), true, biome.floor);
+  }
 });
