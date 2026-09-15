@@ -19,18 +19,16 @@
   <div class="vignette" aria-hidden="true"></div>
   <div id="speed-lines" aria-hidden="true"></div>
   <div id="flash" aria-hidden="true"></div>
-  <header>
-    <nav aria-label="Game controls">
-      <button id="sound" class="icon-button" aria-label="Turn sound on" title="Sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="sound-wave" d="m16 9 5 6m0-6-5 6"/></svg></button>
-      <button id="help" class="icon-button" aria-label="How to play" title="How to play">?</button>
-      <button id="pause" class="icon-button play-only" aria-label="Pause game" title="Pause (P)">Ⅱ</button>
-    </nav>
-  </header>
   <section id="intro" class="intro">
     <h1>UNBRIDLED.</h1>
     <div class="intro-meta">
       <p class="best-intro">Personal best <b id="intro-best">0</b></p>
     </div>
+    <nav class="title-tools" aria-label="Game controls">
+      <button id="sound" class="icon-button" aria-label="Turn sound on" title="Sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="sound-wave" d="m16 9 5 6m0-6-5 6"/></svg></button>
+      <button id="help" class="icon-button" aria-label="How to play" title="How to play">?</button>
+      <button id="pause" class="icon-button play-only" aria-label="Pause game" title="Pause (P)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
+    </nav>
     <div class="title-cta">
       <button id="start" class="primary" disabled>
         <span class="start-loading">Preparing the trail…</span>
@@ -40,9 +38,11 @@
     </div>
   </section>
   <section id="hud" class="play-only" aria-label="Run statistics">
-    <div class="health-panel"><span class="tiny-label">HORSEPOWER</span><div id="hearts" aria-label="3 hearts">♥ ♥ ♥</div></div>
-    <div class="score-block"><b id="score">0</b></div>
-    <div class="status-block"><b><span id="speed">0</span> <small>km/h</small></b><span id="gait">CANTER</span></div>
+    <div class="hud-left">
+      <div class="health-panel"><span class="tiny-label">HORSEPOWER</span><div id="hearts" aria-label="3 hearts">♥ ♥ ♥</div></div>
+      <div class="status-block"><span class="tiny-label">SPEED</span><b><span id="speed">0</span> <small>km/h</small></b></div>
+    </div>
+    <div class="score-block"><span class="tiny-label">SCORE</span><b id="score">0</b></div>
   </section>
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="effect" class="play-only"><span id="effect-label"></span><div><i id="effect-time"></i></div></div>
