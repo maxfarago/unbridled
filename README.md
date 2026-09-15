@@ -24,13 +24,13 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 
 ## Controls
 
-- Title: click `LET’S RIDE`, or on desktop press up arrow.
+- Title: tap `Swipe to Steer and Jump` (mobile) or `Click or Press Space to Begin` (desktop). Space starts the run from the title screen.
 - Left/right arrows or A/D: change lanes. Steering works in midair.
 - Space, up arrow, or W: jump.
 - Down arrow or S: duck / fast fall.
 - Hold Shift to sprint; release to recharge.
 - P or Escape: pause; M: toggle sound.
-- Touch: swipe in four directions, or use the on-screen controls. Hold ϟ to sprint. The title hint is swipe only.
+- Touch: swipe in four directions, or use the on-screen controls. Hold ϟ to sprint.
 
 Carrots grant four seconds of speed and sprint energy. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincible galloping. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier and shout when the multiplier ticks up. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
 

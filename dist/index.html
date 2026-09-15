@@ -27,12 +27,17 @@
     </nav>
   </header>
   <section id="intro" class="intro">
-    <p class="best-intro">PERSONAL BEST <b id="intro-best">0</b></p>
     <h1>UNBRIDLED.</h1>
-    <button id="start" class="primary" disabled>
-      <span class="start-loading">Preparing the trail…</span>
-      <span class="start-label">LET’S RIDE <kbd class="desktop">↑</kbd></span>
-    </button>
+    <div class="intro-meta">
+      <p class="best-intro">Personal best <b id="intro-best">0</b></p>
+    </div>
+    <div class="title-cta">
+      <button id="start" class="primary" disabled>
+        <span class="start-loading">Preparing the trail…</span>
+        <span class="start-label"><span class="desktop">Click or Press Space to Begin</span><span class="mobile">Swipe to Steer and Jump</span></span>
+      </button>
+      <div class="control-hint desktop title-controls"><span><kbd>←</kbd><kbd>→</kbd> Steer</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>↓</kbd> Duck</span><span><kbd>SHIFT</kbd> Sprint</span></div>
+    </div>
   </section>
   <section id="hud" class="play-only" aria-label="Run statistics">
     <div class="health-panel"><span class="tiny-label">HORSEPOWER</span><div id="hearts" aria-label="3 hearts">♥ ♥ ♥</div></div>
@@ -42,10 +47,6 @@
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="effect" class="play-only"><span id="effect-label"></span><div><i id="effect-time"></i></div></div>
   <div class="stamina play-only"><div class="stamina-label"><span>SPRINT</span><span id="energy-label">HOLD SHIFT</span></div><div class="meter"><i id="energy"></i></div></div>
-  <footer id="intro-footer">
-    <div class="control-hint desktop"><span><kbd>←</kbd><kbd>→</kbd> STEER</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>↓</kbd> DUCK</span><span><kbd>SHIFT</kbd> SPRINT</span></div>
-    <div class="control-hint mobile">SWIPE TO STEER & JUMP</div>
-  </footer>
   <div id="touch-controls" class="play-only" aria-label="Touch controls"><div><button id="left" aria-label="Move left">←</button><button id="right" aria-label="Move right">→</button></div><div><button id="duck" aria-label="Duck under bees">↓</button><button id="jump" aria-label="Jump">↑</button><button id="sprint" aria-label="Hold to sprint">ϟ</button></div></div>
   <dialog id="guide">
     <button class="close" aria-label="Close guide">×</button>
