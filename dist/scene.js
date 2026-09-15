@@ -99,9 +99,8 @@ export async function createScene(canvas){
     const object=new T.Mesh(geometry,material);object.frustumCulled=false;scene.add(object);ribbons.push({geometry,positions,left,right,height});
   }
   ribbon(-4,4,0,roadMat);ribbon(-4-ROAD_SHOULDER,-4,0,shoulderMat,true);ribbon(4,4+ROAD_SHOULDER,0,shoulderMat,false);
-  // Static instanced trail marks and desert gravel travel as one bounded batch.
-  const count=430,gravel=new T.InstancedMesh(box,mat(0xb98b59),count),matrix=new T.Object3D();const marks=[];
-  for(let i=0;i<count;i++){const x=i<190?(Math.random()-.5)*7.6:(Math.random()<.5?-1:1)*(4.7+Math.random()*34);marks.push({x,z:Math.random()*180-170,w:.025+Math.random()*.08,l:.14+Math.random()*.8});}scene.add(gravel);
+  const count=240,gravel=new T.InstancedMesh(box,mat(0xb98b59),count),matrix=new T.Object3D();const marks=[];
+  for(let i=0;i<count;i++){const x=(Math.random()<.5?-1:1)*(4.7+Math.random()*34);marks.push({x,z:Math.random()*180-170,w:.025+Math.random()*.08,l:.14+Math.random()*.8});}scene.add(gravel);
   scene.add(horseRig.root);
   const shadowMat=new T.MeshBasicMaterial({color:palette.shadow,transparent:true,opacity:.23,depthWrite:false});
   const shadow=new T.Mesh(new T.CircleGeometry(1,24),shadowMat);shadow.rotation.x=-Math.PI/2;shadow.scale.set(.66,1.36,1);shadow.position.y=.025;scene.add(shadow);
