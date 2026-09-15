@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LANE_WIDTH } from '../dist/engine.mjs';
-import { PLAYER_Z, ROAD_SEGMENTS, RoadFrame, writeRoadStrip } from '../dist/road.mjs';
+import { PLAYER_Z, ROAD_SEGMENTS, ROAD_NEAR, ROAD_FAR, ROAD_TILE, RoadFrame, writeRoadStrip, writeRoadUVs } from '../dist/road.mjs';
 
 test('sample at the horse sits on the player station', () => {
   const frame = new RoadFrame();
@@ -48,4 +48,16 @@ test('advancing distance moves the far ribbon, not the horse origin', () => {
   assert.ok(Math.abs(originLater.z - PLAYER_Z) < 1e-9);
   const far = ROAD_SEGMENTS * 6;
   assert.ok(Math.abs(first[far] - second[far]) > .5 || Math.abs(first[far + 2] - second[far + 2]) > .5);
+});
+test('road UVs stay in course space at one repeat per eight units', () => {
+  const uvs = new Float32Array((ROAD_SEGMENTS + 1) * 4);
+  writeRoadUVs(uvs, -4, 4);
+  assert.equal(uvs[0], -4 / ROAD_TILE);
+  assert.equal(uvs[1], ROAD_NEAR / ROAD_TILE);
+  assert.equal(uvs[2], 4 / ROAD_TILE);
+  assert.equal(uvs[3], ROAD_NEAR / ROAD_TILE);
+  const last = ROAD_SEGMENTS * 4;
+  assert.equal(uvs[last], -4 / ROAD_TILE);
+  assert.equal(uvs[last + 1], ROAD_FAR / ROAD_TILE);
+  assert.equal(uvs[last + 2], 4 / ROAD_TILE);
 });
