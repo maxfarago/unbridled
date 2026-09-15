@@ -3,7 +3,7 @@
 
 .guide-grid article>span svg{width:30px;height:30px}
 
-#landscape-next{opacity:0;transition:opacity .12s linear;will-change:opacity}.edition b{font-weight:500}
+#landscape-next{opacity:0;will-change:opacity}.edition b{font-weight:500}
 .trail-stamp{position:absolute;right:7%;top:28%;height:118px;width:118px;border:1px solid #fcf8e87a;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(12deg);color:var(--navy);background:var(--gold);box-shadow:0 0 0 6px #f2e08a28;z-index:4;pointer-events:none}.trail-stamp span{font-size:10px;letter-spacing:1.4px;font-weight:800}.trail-stamp b{font-family:'Barlow Condensed',Impact,sans-serif;font-size:44px;line-height:1.2}#game:not([data-mode=loading]):not([data-mode=menu]) .trail-stamp{display:none}.no-script{position:absolute;inset:0;background:var(--navy);display:grid;place-items:center;z-index:20}@media(max-width:700px){.trail-stamp{right:25px;top:27%;width:82px;height:82px}.trail-stamp b{font-size:31px}.title-star{font-size:36px;right:-38px}}
 #hud{top:100px;left:36px;right:36px;align-items:flex-start;text-shadow:none}
 .tiny-label{display:block;font-size:10px;letter-spacing:1.8px;font-weight:800;color:#fff8dac9}
