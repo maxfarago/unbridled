@@ -37,16 +37,26 @@ h1{font-family:'Barlow Condensed',Impact,sans-serif;font-style:italic;font-weigh
 @media(max-width:700px){h1{font-size:clamp(48px,13vw,76px);margin:10px 0 22px}}
 @media(max-height:650px){h1{font-size:clamp(44px,9vh,72px)}}
 
-#intro{position:absolute;inset:0;top:0;left:0;right:0;bottom:0;pointer-events:none;text-shadow:none}
-.best-intro{position:absolute;top:32px;left:38px;z-index:5;margin:0;pointer-events:none}
-#intro h1{position:absolute;top:86px;left:50%;margin:0;transform:translateX(-50%) rotate(-3deg);transform-origin:center;pointer-events:none}
-#start{position:absolute;right:38px;bottom:28px;width:40%;min-width:0;min-height:64px;justify-content:center;gap:12px;font-size:14px;white-space:nowrap;pointer-events:auto;z-index:5}
+#intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:12vh 24px 0;pointer-events:none;text-shadow:none;z-index:4;text-align:center}
+#intro h1{position:static;top:auto;left:auto;margin:0;transform:rotate(-3deg);transform-origin:center;pointer-events:none}
+.intro-meta{margin:18px 0 0;padding:10px 18px 12px;background:#120820e0;border-radius:5px}
+.best-intro{position:static;top:auto;left:auto;z-index:auto;margin:0;font-size:18px;letter-spacing:.04em;font-weight:600;text-transform:none;pointer-events:none;text-shadow:none}
+.best-intro b{font-family:'Barlow Condensed',Impact,sans-serif;font-size:34px;font-weight:800;margin-left:10px;font-variant-numeric:tabular-nums;letter-spacing:.5px;vertical-align:-2px;text-shadow:none}
+.title-cta{display:flex;flex-direction:column;align-items:stretch;width:max-content;max-width:100%;margin:28px 0 0;pointer-events:none}
+#start{position:relative;right:auto;bottom:auto;width:100%;min-width:0;min-height:64px;margin:0;justify-content:center;gap:12px;font-size:14px;white-space:nowrap;pointer-events:auto;z-index:5;box-shadow:none;border-radius:5px 5px 0 0}
+#start:hover,#start:active{transform:none;box-shadow:none}
+.title-controls{margin:0;padding:10px 14px;justify-content:center;flex-wrap:nowrap;text-transform:none;font-size:12px;letter-spacing:.04em;background:#120820e0;border-radius:0 0 5px 5px;text-shadow:none}
+.title-controls>span{text-transform:none}
 #start span,#start .start-label,#start .start-loading{font-size:14px;font-weight:800}
-#start kbd{min-width:28px;width:28px;height:28px;padding:0;font:800 14px 'Barlow Condensed',Impact,sans-serif;letter-spacing:0;color:var(--navy);border-color:#12082055;background:#fff8da55}
 #start:disabled .start-label{display:none!important}
 #start:not(:disabled) .start-loading{display:none}
-#start .start-label{display:inline-flex;align-items:center;gap:10px}
-#intro-footer{right:calc(40% + 64px)}
-@media(pointer:coarse){#start{width:50%;right:20px;bottom:24px}#intro-footer{right:calc(50% + 36px);left:20px}}
-@media(max-width:700px){#intro{top:0;left:0}#start{width:50%;right:20px;bottom:24px}.best-intro{top:22px;left:20px}#intro h1{top:72px}#intro-footer{left:20px;right:calc(50% + 36px)}}
-@media(max-height:650px){#intro{top:0}.best-intro{display:block;top:18px}#intro h1{top:64px}}
+#start .start-label{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+#world{pointer-events:none}
+#game[data-mode=running] #world,#game[data-mode=paused] #world{pointer-events:auto}
+@media(pointer:coarse), (max-width:700px){
+  #intro{z-index:4;padding-top:14vh}
+  .title-cta{margin:0;width:auto}
+  #start{position:absolute;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom,0px));width:auto;min-width:0;margin:0;z-index:5;border-radius:5px;box-shadow:none}
+}
+@media(max-width:700px){#intro{top:0;left:0;padding-top:12vh}.best-intro{font-size:16px}.best-intro b{font-size:28px}#intro h1{top:auto}.mobile{display:flex}.desktop{display:none}}
+@media(max-height:650px){#intro{padding-top:10vh}.best-intro{display:block}#intro h1{top:auto}}

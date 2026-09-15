@@ -14,6 +14,6 @@ Production is Cloudflare Pages, same as grand-theft-horse: feature branch → Gi
 - Branding is Unbridled: Barlow Condensed, Impact, sans-serif on headers and display type; Expletus Sans 600 on body; ink/orange/yellow (`#120820` / `#e85a28` / `#f2e08a`); ⋒ wordmark; Unbridled copy. Event feedback is big center poster shouts (`#toast`), not pill toasts.
 - Rank and persist by score (`unbridled-best-score`), not distance. HUD is hearts left, one center score, speed + gait right. Distance stays internal for biomes and the score formula.
 - Landscape paintings are a CSS backdrop behind the 3D trail. Pin them with `background-position: center bottom` so the painted desert and rock bases meet the road. Do not crop toward the sky, especially on mobile.
-- Title: wordmark at the top, personal best top-left, `LET’S RIDE` bottom-right (desktop also shows ↑; up arrow starts the run). Mobile hint is `SWIPE TO STEER & JUMP`.
+- Title: wordmark near the top-center, personal best below it (not all-caps). Desktop: `Click or Press Space to Begin` flush on top of same-width key hints (no button offset shadow); Space starts the run. Mobile: `Swipe to Steer and Jump` full-width at the bottom, visually behind the horse (no offset shadow).
 - Start with `npm run dev` (serves `dist/` at `http://127.0.0.1:4173/`). Run `npm test` for the 16 gameplay regression checks.
 - Read `README.md` for controls, persistence keys, testing limits, and deploy notes.

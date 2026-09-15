@@ -45,7 +45,7 @@ document.addEventListener('keydown',e=>{
   const key=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup','arrowdown',' ','shift'].includes(key)&&state.mode==='running')e.preventDefault();
   if(key==='m'){$('sound').click();return;}
   if($('guide').open||$('finish').open)return;
-  if(state.mode==='menu'&&key==='arrowup'&&!$('start').disabled){e.preventDefault();start();return;}
+  if(state.mode==='menu'&&key===' '&&!$('start').disabled){e.preventDefault();start();return;}
   if(key==='p'||key==='escape'){e.preventDefault();if(state.mode==='running')pause();else if(state.mode==='paused')resume();return;}
   if(state.mode!=='running')return;
   if(!e.repeat){if(key==='arrowleft'||key==='a')doSteer(-1);if(key==='arrowright'||key==='d')doSteer(1);if(key===' '||key==='arrowup'||key==='w')doJump();if(key==='arrowdown'||key==='s')doDuck();}
