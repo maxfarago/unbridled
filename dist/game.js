@@ -1,9 +1,11 @@
 import {freshState,steer,jump,duck,tick,interact,makeRow} from './engine.mjs';
 import {createScene} from './scene.js';
-import {BIOMES,landscapeAt} from './biomes.mjs';
+import {BIOMES,landscapeAt,landmarkAt,skyOf} from './biomes.mjs';
 const $=id=>document.getElementById(id);
+const startAt=Math.max(0,Number(new URLSearchParams(location.search).get('at'))||0);
 let state=freshState(),view,items=[],nextRow=40,last=0,flash=0,shake=0,toastTime=0,uiTime=0,muted=true,audioContext,best=0,oldBest=0,previousMode='menu',lastMult=1;
-let currentLandscape=-1,lastSegment=0;
+let currentLandscape=-1,currentLandmark='',lastSegment=0;
+if(startAt)state.distance=startAt;
 try{
   best=Number(localStorage.getItem('unbridled-best-score')||0);if(!Number.isFinite(best))best=0;
   muted=localStorage.getItem('unbridled-sound')!=='1';
@@ -34,8 +36,13 @@ function sound(kind){
   const notes=kind==='hit'?[100,65]:kind==='gold'?[392,494,587,784]:kind==='jump'?[180,300]:kind==='hoof'?[75]:[523,659];
   notes.forEach((f,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=kind==='hit'?'sawtooth':'sine';osc.frequency.setValueAtTime(f,now+i*.065);gain.gain.setValueAtTime(kind==='hoof'?.022:.07,now+i*.065);gain.gain.exponentialRampToValueAtTime(.001,now+i*.065+.13);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.065);osc.stop(now+i*.065+.15);});}catch{}
 }
+function paintSky(from,to){
+  $('landscape-sky').style.backgroundImage=`url('${skyOf(from)}')`;
+  $('landscape-sky-next').style.backgroundImage=`url('${skyOf(to)}')`;
+}
+function paintLandmark(src,node){node.style.backgroundImage=src?`url('${src}')`:'none';}
 function start(){
-  for(const item of items)view.release(item);items=[];state=freshState();nextRow=40;flash=0;shake=0;oldBest=best;lastSegment=0;lastMult=1;updateLandscape();
+  for(const item of items)view.release(item);items=[];state=freshState();if(startAt)state.distance=startAt;nextRow=40;flash=0;shake=0;oldBest=best;lastSegment=landscapeAt(state.distance).segment;lastMult=1;currentLandscape=-1;currentLandmark='';updateLandscape();
   for(const d of document.querySelectorAll('dialog[open]'))d.close();mode('running');$('start').blur();toast('HIT THE TRAIL!');sound('gold');
   addItem({lane:0,type:'carrot',z:-25});addItem({lane:1,type:'carrot',z:-48});addItem({lane:-1,type:'fence',z:-48});addItem({lane:0,type:'fence',z:-75});addItem({lane:-1,type:'carrot',z:-75});nextRow=22;
 }
@@ -88,8 +95,15 @@ function updateUI(){
 }
 function updateLandscape(){
   const {index,next,blend,segment}=landscapeAt(state.distance);
-  if(currentLandscape!==index){$('landscape-next').style.opacity=0;$('landscape-base').style.backgroundImage=`url('${BIOMES[index].image}')`;$('landscape-next').style.backgroundImage=`url('${BIOMES[next].image}')`;currentLandscape=index;}
-  $('landscape-next').style.opacity=blend;view.setBiome(index,next,blend);
+  const from=BIOMES[index],to=BIOMES[next],layers=from.layers||[];
+  if(currentLandscape!==index){$('landscape-sky-next').style.opacity=0;paintSky(from,to);currentLandscape=index;currentLandmark='';}
+  $('landscape-sky-next').style.opacity=blend;
+  const mark=landmarkAt(state.distance,layers.length);
+  const key=`${index}:${mark.from}:${mark.to}`;
+  if(currentLandmark!==key){paintLandmark(mark.from<0?'':layers[mark.from],$('landscape-base'));paintLandmark(mark.to<0?'':layers[mark.to],$('landscape-next'));currentLandmark=key;}
+  $('landscape-base').style.opacity=mark.from<0?0:1-mark.blend;
+  $('landscape-next').style.opacity=mark.to<0?0:mark.blend;
+  view.setBiome(index,next,blend);
   if(segment!==lastSegment&&state.mode==='running'){lastSegment=segment;toast(`ENTERING ${BIOMES[index].name}`,'ok');}
 }
 let hoofTime=0;
@@ -106,13 +120,14 @@ function loop(now){
   if(state.mode!=='paused'){flash=Math.max(0,flash-dt*5);shake=Math.max(0,shake-dt*3);toastTime-=dt;if(toastTime<=0)$('toast').classList.remove('show');}
   $('flash').style.opacity=flash*.76;
   view.render(state,dt,items,shake);
-  uiTime+=dt;if(uiTime>.08){updateUI();updateLandscape();uiTime=0;}
+  updateLandscape();
+  uiTime+=dt;if(uiTime>.08){updateUI();uiTime=0;}
   requestAnimationFrame(loop);
 }
 async function init(){
   try{
     const [,v]=await Promise.all([
-      Promise.all(BIOMES.map(async biome=>{const image=new Image();image.src=new URL(biome.image,import.meta.url).href;await image.decode();})),
+      Promise.all([...new Set(BIOMES.flatMap(biome=>[biome.image,skyOf(biome),...(biome.layers||[])]))].map(async src=>{const image=new Image();image.src=new URL(src,import.meta.url).href;await image.decode();})),
       createScene($('world'))
     ]);
     view=v;updateLandscape();mode('menu');$('start').disabled=false;requestAnimationFrame(loop);
