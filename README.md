@@ -34,7 +34,7 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 
 Carrots grant four seconds of speed and sprint energy. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincible galloping. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier and shout when the multiplier ticks up. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
 
-HUD during a run is HORSEPOWER and SPEED top-left, sound/pause top-right with SCORE under them. Every 600 metres the landscape dissolves into the next painting: Violet Monoliths, Vermilion Valley, then Midnight Mesas, repeating. Pickup, hazard, and biome events shout in the center of the screen.
+HUD during a run is HORSEPOWER and SPEED top-left, sound/pause top-right with SCORE under them. Every 1200 metres the landscape dissolves into the next painting: Vermilion Valley, Golden Monolith, then Midnight Mesas, repeating. Pickup, hazard, and biome events shout in the center of the screen.
 
 Best score (`unbridled-best-score`) and sound preference (`unbridled-sound`) are saved on this device. Distance is used internally for biomes and scoring, not as a rank. Sound starts muted and is generated locally after user interaction. The game pauses when the tab loses focus. Reduced-motion preferences disable shake, flashes, vibration, and speed streaks, and reduce particles.
 

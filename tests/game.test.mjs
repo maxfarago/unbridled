@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { freshState, steer, jump, duck, tick, interact, makeRow } from '../dist/engine.mjs';
-import { BIOMES } from '../dist/biomes.mjs';
+import { BIOMES, SPAN, landscapeAt, landmarkAt, skyOf } from '../dist/biomes.mjs';
 
 function running() {
   const s = freshState();
@@ -109,10 +109,36 @@ test('pickup streaks grow the score multiplier', () => {
 test('identical seeds generate identical opening tracks', () => {
   assert.deepEqual(makeRow(0, rng(777)), makeRow(0, rng(777)));
 });
+test('biomes cycle vermilion, golden monolith, then midnight mesas', () => {
+  assert.deepEqual(BIOMES.map(b => b.name), ['VERMILION VALLEY', 'GOLDEN MONOLITH', 'MIDNIGHT MESAS']);
+});
 test('each biome has a matching tiled floor texture', () => {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist');
   for (const biome of BIOMES) {
-    assert.equal(biome.floor, biome.image.replace('./assets/', './assets/ground-'));
+    const stem = biome.name.toLowerCase().replace(/ /g, '-');
+    assert.equal(biome.floor, `./assets/ground-${stem}.jpg`);
     assert.equal(existsSync(join(root, biome.floor.replace(/^\.\//, ''))), true, biome.floor);
+    assert.equal(existsSync(join(root, skyOf(biome).replace(/^\.\//, ''))), true, skyOf(biome));
+    assert.equal((biome.layers || []).length, 4, biome.name);
+    for (const layer of biome.layers || []) {
+      assert.equal(existsSync(join(root, layer.replace(/^\.\//, ''))), true, layer);
+    }
   }
+});
+test('landmark plates hold, then crossfade, then empty before the biome dissolve', () => {
+  const at = progress => landmarkAt(progress * SPAN, 4);
+  assert.equal(at(0).from, -1);
+  assert.equal(at(0).to, 0);
+  assert.equal(at(0).blend, 0);
+  const hold = at(0.12);
+  assert.equal(hold.from, 0); assert.equal(hold.to, 0); assert.equal(hold.blend, 0);
+  const fade = at(0.25);
+  assert.equal(fade.from, 0); assert.equal(fade.to, 1);
+  assert.ok(fade.blend > 0.2 && fade.blend < 0.8);
+  const last = at(0.76);
+  assert.equal(last.from, 3); assert.equal(last.to, 3);
+  const gone = at(0.95);
+  assert.equal(gone.from, -1); assert.equal(gone.to, -1);
+  assert.equal(landmarkAt(100, 0).from, -1);
+  assert.ok(landscapeAt(0.8 * SPAN).blend > 0);
 });
