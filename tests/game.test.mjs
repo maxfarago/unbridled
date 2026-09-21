@@ -59,21 +59,34 @@ test('apples heal and grant a short protected window', () => {
 test('carrot rush speeds you up but does not smash fences', () => {
   const s = running();
   assert.equal(interact(s, { lane: 0, type: 'carrot', hit: false }), 'carrot');
-  assert(s.carrot > 0);
+  assert.equal(s.carrot, 4); assert.equal(s.carrotStacks, 1);
+  advance(s, .4);
+  assert(s.speed > 19);
   assert.equal(interact(s, { lane: 0, type: 'fence', hit: false }), 'hit');
   assert.equal(s.hearts, 2);
 });
-test('golden gallop smashes fences', () => {
+test('carrots stack intensity and refresh the rush', () => {
   const s = running();
+  interact(s, { lane: 0, type: 'carrot', hit: false });
+  advance(s, .5);
+  const once = s.speed;
+  s.carrot = 1.2;
+  assert.equal(interact(s, { lane: 0, type: 'carrot', hit: false }), 'carrot');
+  assert.equal(s.carrotStacks, 2); assert.equal(s.carrot, 4);
+  advance(s, .5);
+  assert(s.speed > once);
+  advance(s, 4);
+  assert.equal(s.carrot, 0); assert.equal(s.carrotStacks, 0);
+});
+test('golden gallop is invincible, smashes fences, and does not change speed', () => {
+  const s = running();
+  const cruise = s.speed;
   assert.equal(interact(s, { lane: 0, type: 'gold', hit: false }), 'gold');
-  assert.equal(s.gold, 5);
+  assert.equal(s.gold, 5); assert(s.invincible >= 5);
+  advance(s, .5);
+  assert(Math.abs(s.speed - cruise) < .05);
   assert.equal(interact(s, { lane: 0, type: 'fence', hit: false }), 'smash');
   assert.equal(s.hearts, 3);
-});
-test('sprint drains energy and recharges when you ease off', () => {
-  const s = running(); s.sprinting = true; advance(s, 1);
-  assert(s.energy < 80); s.sprinting = false; const drained = s.energy; advance(s, 1);
-  assert(s.energy > drained);
 });
 test('lane changes stay within the track', () => {
   const s = running();
@@ -89,10 +102,10 @@ test('zero hearts ends the run and stops the simulation', () => {
   const distance = s.distance; advance(s, 1); assert.equal(s.distance, distance);
 });
 test('reset clears temporary powerups and movement state', () => {
-  const s = running(); Object.assign(s, { carrot: 8, gold: 5, energy: 10, hearts: 1, y: 2, duck: 1, combo: 20 });
+  const s = running(); Object.assign(s, { carrot: 8, gold: 5, hearts: 1, y: 2, duck: 1, combo: 20 });
   const n = freshState();
-  assert.equal(n.hearts, 3); assert.equal(n.carrot, 0); assert.equal(n.gold, 0);
-  assert.equal(n.energy, 100); assert.equal(n.combo, 0); assert.equal(n.y, 0); assert.equal(n.mode, 'menu');
+  assert.equal(n.hearts, 3); assert.equal(n.carrot, 0); assert.equal(n.carrotStacks, 0); assert.equal(n.gold, 0);
+  assert.equal(n.combo, 0); assert.equal(n.y, 0); assert.equal(n.mode, 'menu');
 });
 test('100 seeded tracks preserve a safe lane in each opening obstacle row', () => {
   for (let seed = 1; seed <= 100; seed++) {

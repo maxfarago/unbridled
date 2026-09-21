@@ -36,7 +36,7 @@
         <span class="start-loading">Preparing the trail…</span>
         <span class="start-label"><span class="desktop">Click or Press Space to Begin</span><span class="mobile">Swipe to Steer and Jump</span></span>
       </button>
-      <div class="control-hint desktop title-controls"><span><kbd>←</kbd><kbd>→</kbd> Steer</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>↓</kbd> Duck</span><span><kbd>SHIFT</kbd> Sprint</span></div>
+      <div class="control-hint desktop title-controls"><span><kbd>←</kbd><kbd>→</kbd> Steer</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>↓</kbd> Duck</span></div>
     </div>
   </section>
   <section id="hud" class="play-only" aria-label="Run statistics">
@@ -47,19 +47,23 @@
     <div class="score-block"><span class="tiny-label">SCORE</span><b id="score">0</b></div>
   </section>
   <div id="toast" role="status" aria-live="polite"></div>
-  <div id="effect" class="play-only"><span id="effect-label"></span><div><i id="effect-time"></i></div></div>
-  <div class="stamina play-only"><div class="stamina-label"><span>SPRINT</span><span id="energy-label">HOLD SHIFT</span></div><div class="meter"><i id="energy"></i></div></div>
-  <div id="touch-controls" class="play-only" aria-label="Touch controls"><div><button id="left" aria-label="Move left">←</button><button id="right" aria-label="Move right">→</button></div><div><button id="duck" aria-label="Duck under bees">↓</button><button id="jump" aria-label="Jump">↑</button><button id="sprint" aria-label="Hold to sprint">ϟ</button></div></div>
+  <div id="effects" class="play-only">
+    <div class="effect" data-fx="gold" hidden><span>✦ GOLDEN GALLOP</span><div><i></i></div></div>
+    <div class="effect" data-fx="carrot" hidden><span>CARROT KICK</span><div><i></i></div></div>
+    <div class="effect" data-fx="ok" hidden><span>PROTECTED</span><div><i></i></div></div>
+    <div class="effect" data-fx="mud" hidden><span>MUDDY HOOVES</span><div><i></i></div></div>
+    <div class="effect" data-fx="hit" hidden><span>BEE STING</span><div><i></i></div></div>
+  </div>
+  <div id="touch-controls" class="play-only" aria-label="Touch controls"><div><button id="left" aria-label="Move left">←</button><button id="right" aria-label="Move right">→</button></div><div><button id="duck" aria-label="Duck under bees">↓</button><button id="jump" aria-label="Jump">↑</button></div></div>
   <dialog id="guide">
     <button class="close" aria-label="Close guide">×</button>
     <p class="eyebrow">KNOW YOUR TRAIL</p>
     <h2>Field guide.</h2>
-    <p class="guide-lead">Steer the three trails. Jump fences, duck bees, and keep your hooves out of the mud. Hold Shift to sprint.</p>
+    <p class="guide-lead">Steer the three trails. Jump fences, duck bees, and keep your hooves out of the mud.</p>
     <div class="guide-grid">
-      <article><span>🥕</span><div><h3>Carrot kick</h3><p>Four seconds of speed, plus a gulp of sprint energy. Collect a streak for more points.</p></div></article>
+      <article><span>🥕</span><div><h3>Carrot kick</h3><p>Each carrot makes you faster and refreshes four seconds. Collect a streak for more points.</p></div></article>
       <article><span>🍎</span><div><h3>An apple a day</h3><p>Restores one heart and protects you for two seconds.</p></div></article>
-      <article><span>⋒</span><div><h3>Golden horseshoe</h3><p>Five seconds of invincible galloping. Smash straight through fences.</p></div></article>
-      <article><span>ϟ</span><div><h3>A burst of freedom</h3><p>Hold Shift or ϟ to sprint. Energy recharges when you ease off.</p></div></article>
+      <article><span>⋒</span><div><h3>Golden horseshoe</h3><p>Five seconds of invincibility. Smash straight through fences.</p></div></article>
     </div>
     <div class="hazards"><b>Mind the trail</b><span>Fences → jump</span><span>Bees → duck or dodge</span><span>Mud → jump or dodge</span></div>
     <p class="guide-note">Arrow keys / A D to steer · Space / W to jump · ↓ / S to duck<br>On a phone, swipe or use the buttons. You can steer in the air.<br>P / Esc to pause. Three hearts, one endless trail.</p>

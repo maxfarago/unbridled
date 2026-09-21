@@ -137,7 +137,7 @@ export async function createScene(canvas){
     horseRig.update(s,dt,moving);
     horseRig.root.visible=!(s.invincible>2.01||s.invincible<=0)&&s.mode==='running'?Math.sin(elapsed*35)>-.45:true;
     shadow.position.x=s.x;shadow.position.z=PLAYER_Z;shadow.scale.set(.66+s.y*.14,1.36+s.y*.2,1);shadowMat.opacity=.23-s.y*.05;
-    const boost=(s.gold>0||s.carrot>0||s.sprinting&&s.energy>1);ring.visible=s.gold>0||s.invincible>0;ring.position.x=s.x;ring.position.z=PLAYER_Z;ring.rotation.z+=dt;
+    const boost=s.carrot>0;ring.visible=s.gold>0||s.invincible>0;ring.position.x=s.x;ring.position.z=PLAYER_Z;ring.rotation.z+=dt;
     const desiredFov=(camera.aspect<.8?56:46)+(boost&&!reduceMotion?5:0);camera.fov+=(desiredFov-camera.fov)*dt*3;camera.updateProjectionMatrix();
     const bob=reduceMotion?0:Math.sin(gallop*2)*.015;
     roadFrame.sample(32,0,roadPoint);const leadTarget=reduceMotion?0:roadPoint.x*.35;
