@@ -28,11 +28,10 @@ Runs the 16 gameplay regression checks using Node's built-in test runner.
 - Left/right arrows or A/D: change lanes. Steering works in midair.
 - Space, up arrow, or W: jump.
 - Down arrow or S: duck / fast fall.
-- Hold Shift to sprint; release to recharge.
 - P or Escape: pause; M: toggle sound.
 - Touch: swipe in four directions.
 
-Carrots grant four seconds of speed and sprint energy. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincible galloping. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier and shout when the multiplier ticks up. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
+Carrots stack speed and refresh a four-second rush. Apples restore a heart and protect you for two seconds. Golden horseshoes grant five seconds of invincibility and smash fences. Jump fences, duck bees, and jump or dodge mud. Pickup streaks grow the score multiplier and shout when the multiplier ticks up. There is jump input buffering just before landing. Three hearts, safe lanes, and short restarts keep runs approachable.
 
 HUD during a run is HORSEPOWER and SPEED top-left, sound/pause top-right with SCORE under them. Every 1200 metres the landscape dissolves into the next painting: Vermilion Valley, Golden Monolith, then Midnight Mesas, repeating. Pickup, hazard, and biome events shout in the center of the screen.
 
@@ -58,7 +57,7 @@ Production is Cloudflare Pages, same as Grand Theft Horse. Feature branch → Gi
 
 ## Handoff notes
 
-- All 16 simulation checks pass, including jump buffering, hazards, gold smash, sprint recovery, reset state, and safe opening obstacle rows over 100 seeds.
+- All 16 simulation checks pass, including jump buffering, hazards, gold smash, reset state, and safe opening obstacle rows over 100 seeds.
 - Local asset references, UI element bindings, and JavaScript syntax were checked. Three.js geometry is pooled and combined by material; pixel density can drop under slow frames.
 - Browser playtesting and physical phone/GPU benchmarks have not been performed. The game caps resolution, limits particles, and adapts resolution downward when frames are slow; actual frame rate still needs checking on target devices.
 - Best score and sound preference are stored locally. There is no online leaderboard or server persistence.
